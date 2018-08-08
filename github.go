@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"context"
 	"net/http"
-)
+	)
 
 // TODO: Move this const to a properer place
 const EnvGitHubToken = "GITHUB_TOKEN"
@@ -49,7 +49,7 @@ func (g *GitHubClient) GetLatestRelease(repo string) (*github.RepositoryRelease,
 	rr, res, err := g.Client.Repositories.GetLatestRelease(context.TODO(), g.Owner, repo)
 
 	if res.StatusCode != http.StatusOK {
-		return nil, errors.Errorf("get latest version: invalid status: %s", res.Status)
+		return nil, errors.Errorf("get latest version: invalid http status: %s", res.Status)
 	}
 
 	return rr, err
@@ -149,7 +149,7 @@ func (g *GitHubClient) CreatePullRequest(repo, title, head, base, body string) (
 	}
 
 	if res.StatusCode != http.StatusCreated {
-		return nil, errors.Errorf("create pull request: invalid status: %s", res.Status)
+		return nil, errors.Errorf("create pull request: invalid http status: %s", res.Status)
 	}
 
 	return pr, nil
@@ -164,7 +164,7 @@ func (g *GitHubClient) MergePullRequest(repo string, number int) error {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return errors.Errorf("merge Pull Request: invalid status: %s", res.Status)
+		return errors.Errorf("merge Pull Request: invalid http status: %s", res.Status)
 	}
 
 	return nil
@@ -181,10 +181,39 @@ func (g *GitHubClient) ClosePullRequest(repo string, number int) error {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return errors.Errorf("close Pull Request: invalid status: %s", res.Status)
+		return errors.Errorf("close Pull Request: invalid http status: %s", res.Status)
 	}
 
 	return nil
+}
+
+// GetFile gets the specified file on GitHub
+func (g *GitHubClient) GetFile(repo, branch, path string) (*github.RepositoryContent, error) {
+	if len(repo) == 0 {
+		return nil, errors.New("missing Github repository name")
+	}
+	
+	if len(branch) == 0 {
+		return nil, errors.New("missing Github branch name")
+	}
+
+	if len(path) == 0 {
+		return nil, errors.New("missing Github file path")
+	}
+
+	opt := &github.RepositoryContentGetOptions{Ref: branch}
+
+	file, _, res, err := g.Client.Repositories.GetContents(context.TODO(), g.Owner, repo, path, opt)
+
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to GetVersion: repository name: %s, branch name: %s, file path: %s", repo, branch, path)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.Errorf("GetFile: invalid http status: %s", res.Status)
+	}
+
+	return file, nil
 }
 
 // UpdateFile updates a file with a given content
@@ -218,7 +247,7 @@ func (g *GitHubClient) UpdateFile(repo, path, message, sha, branch string, conte
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return errors.Errorf("update file: invalid status: %s", res.Status)
+		return errors.Errorf("update file: invalid http status: %s", res.Status)
 	}
 
 	return nil

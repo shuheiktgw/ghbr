@@ -124,6 +124,42 @@ func TestCreateAndDeleteBranch(t *testing.T) {
 	}
 }
 
+func TestGetFileFail(t *testing.T) {
+	cases := []struct {
+		repo, branch, path string
+	}{
+		{repo: "unknowwn", branch: "master", path: "main.go"},
+		{repo: "", branch: "master", path: "main.go"},
+		{repo: TestLibraryRepo, branch: "unknown", path: "main.go"},
+		{repo: TestLibraryRepo, branch: "", path: "main.go"},
+		{repo: TestLibraryRepo, branch: "master", path: "unknown.go"},
+		{repo: TestLibraryRepo, branch: "master", path: ""},
+	}
+
+	for i, tc := range cases {
+		c := testGitHubClient(t)
+
+		if _, err := c.GetFile(tc.repo, tc.branch, tc.path); err == nil {
+			t.Fatalf("#%d GetFile: error is not supposed to be nil", i)
+		}
+	}
+}
+
+func TestGetFileSuccess(t *testing.T) {
+	c := testGitHubClient(t)
+
+	file, err := c.GetFile(TestLibraryRepo, "master", "main.go")
+
+	if err != nil {
+		t.Fatalf("GetFile: unexpected error occured: %s", err)
+	}
+
+	expected := "main.go"
+	if got := *file.Name; got != expected {
+		t.Fatalf("GetFile: unexpected file received: expected: %s, got: %s", expected, got)
+	}
+}
+
 
 
 
