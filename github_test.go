@@ -124,6 +124,32 @@ func TestCreateAndDeleteBranch(t *testing.T) {
 	}
 }
 
+func TestCreatePullRequestFail(t *testing.T) {
+	cases := []struct {
+		repo, title, head, base, body string
+	}{
+		{repo: "unknowwn", title: "Test PR!", head: "develop", base: "master", body: "This is a test PR!"},
+		{repo: "", title: "Test PR!", head: "develop", base: "master", body: "This is a test PR!"},
+		{repo: TestLibraryRepo, title: "", head: "develop", base: "master", body: "This is a test PR!"},
+		{repo: TestLibraryRepo, title: "Test PR!", head: "unknown", base: "master", body: "This is a test PR!"},
+		{repo: TestLibraryRepo, title: "Test PR!", head: "", base: "master", body: "This is a test PR!"},
+		{repo: TestLibraryRepo, title: "Test PR!", head: "develop", base: "unknown", body: "This is a test PR!"},
+		{repo: TestLibraryRepo, title: "Test PR!", head: "develop", base: "", body: "This is a test PR!"},
+		{repo: TestLibraryRepo, title: "Test PR!", head: "develop", base: "master", body: ""},
+	}
+
+	for i, tc := range cases {
+		c := testGitHubClient(t)
+
+		if pr, err := c.CreatePullRequest(tc.repo, tc.title, tc.head, tc.base, tc.body); err == nil {
+			if e := c.ClosePullRequest(tc.repo, *pr.Number); e != nil {
+				t.Errorf("#%d ClosePullRequest: failed to rollback CreatePullRequest: %s", i, e)
+			}
+			t.Fatalf("#%d CreatePullRequest: error is not supposed to be nil", i)
+		}
+	}
+}
+
 func TestGetFileFail(t *testing.T) {
 	cases := []struct {
 		repo, branch, path string
