@@ -1,4 +1,4 @@
-package go_homebrew
+package main
 
 import (
 	"golang.org/x/oauth2"
@@ -7,6 +7,9 @@ import (
 	"context"
 	"net/http"
 )
+
+// TODO: Move this const to a properer place
+const EnvGitHubToken = "GITHUB_TOKEN"
 
 // GitHubClient is a clint to interact with Github API
 type GitHubClient struct {
@@ -21,7 +24,7 @@ func NewGitHubClient(owner, token string) (*GitHubClient, error) {
 	}
 
 	if len(token) == 0 {
-		return nil, errors.New("missing Github API token")
+		return nil, errors.New("missing Github personal access token")
 	}
 
 	ts := oauth2.StaticTokenSource(&oauth2.Token{
@@ -39,6 +42,10 @@ func NewGitHubClient(owner, token string) (*GitHubClient, error) {
 
 // GetLatestRelease returns the latest release of the given Repository
 func (g *GitHubClient) GetLatestRelease(repo string) (*github.RepositoryRelease, error) {
+	if len(repo) == 0 {
+		return nil, errors.New("missing Github repository name")
+	}
+
 	rr, res, err := g.Client.Repositories.GetLatestRelease(context.TODO(), g.Owner, repo)
 
 	if res.StatusCode != http.StatusOK {
@@ -46,6 +53,73 @@ func (g *GitHubClient) GetLatestRelease(repo string) (*github.RepositoryRelease,
 	}
 
 	return rr, err
+}
+
+// CreateNewBranch creates a new branch from the heads of the origin
+func (g *GitHubClient) CreateBranch(repo, origin, new string) error {
+	if len(repo) == 0 {
+		return errors.New("missing Github repository name")
+	}
+
+	if len(origin) == 0 {
+		return errors.New("missing Github origin branch name")
+	}
+
+	if len(new) == 0 {
+		return errors.New("missing Github new branch name")
+	}
+
+	originRef, res, err := g.Client.Git.GetRef(context.TODO(), g.Owner, repo, "heads/" + origin)
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to GetRef: branch name: %s", origin)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return errors.Errorf("failed to GetRef: branch name: %s, invalid http status: %s", res.Status)
+	}
+
+	newRef := &github.Reference{
+		Ref: github.String("refs/heads/" + new),
+		Object: &github.GitObject{
+			SHA: originRef.Object.SHA,
+		},
+	}
+
+	_, res, err = g.Client.Git.CreateRef(context.TODO(), g.Owner, repo, newRef)
+
+	if err != nil {
+		return errors.Wrap(err, "failed to CreateRef")
+	}
+
+	if res.StatusCode != http.StatusCreated {
+		return errors.Errorf("CreateRef: invalid http status: %s", res.Status)
+	}
+
+	return nil
+}
+
+// DeleteLatestRef deletes the latest Ref of the given branch, intended to be used for rollbacks
+func (g *GitHubClient) DeleteLatestRef(repo, branch string) error {
+	if len(repo) == 0 {
+		return errors.New("missing Github repository name")
+	}
+
+	if len(branch) == 0 {
+		return errors.New("missing Github branch name")
+	}
+
+	res, err := g.Client.Git.DeleteRef(context.TODO(), g.Owner, repo, "heads/" + branch)
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to DeleteRef of a branch name %s: %s", branch, err)
+	}
+
+	if res.StatusCode != http.StatusNoContent {
+		return errors.Errorf("DeleteRef: invalid http status: %s", res.Status)
+	}
+
+	return nil
 }
 
 // CreatePullRequest creates Pull Request
