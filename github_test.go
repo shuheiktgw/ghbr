@@ -8,8 +8,7 @@ import (
 
 const (
 	TestOwner = "shuheiktgwtest"
-	TestLibraryRepo = "github-api-test-go-homebrew"
-	TestFormulaRepo = "homebrew-" + TestLibraryRepo
+	TestRepo  = "github-api-test-go-homebrew"
 )
 
 func testGitHubClient(t *testing.T) *GitHubClient {
@@ -62,7 +61,7 @@ func TestGetLatestReleaseFail(t *testing.T) {
 func TestGetLatestReleaseSuccess(t *testing.T) {
 	c := testGitHubClient(t)
 
-	if _, err := c.GetLatestRelease(TestLibraryRepo); err != nil {
+	if _, err := c.GetLatestRelease(TestRepo); err != nil {
 		t.Fatalf("GetLatestRelease: unexpected error occured: %s", err)
 	}
 }
@@ -73,9 +72,9 @@ func TestCreateBranchFail(t *testing.T) {
 	}{
 		{repo: "unknowwn", origin: "master", new: "test" },
 		{repo: "", origin: "master", new: "test" },
-		{repo: TestLibraryRepo, origin: "unknown", new: "test" },
-		{repo: TestLibraryRepo, origin: "", new: "test" },
-		{repo: TestLibraryRepo, origin: "master", new: "" },
+		{repo: TestRepo, origin: "unknown", new: "test" },
+		{repo: TestRepo, origin: "", new: "test" },
+		{repo: TestRepo, origin: "master", new: "" },
 	}
 
 	for i, tc := range cases {
@@ -96,8 +95,8 @@ func TestDeleteLatestRefFail(t *testing.T) {
 	}{
 		{repo: "unknowwn", branch: "master"},
 		{repo: "", branch: "master"},
-		{repo: TestLibraryRepo, branch: "unknown"},
-		{repo: TestLibraryRepo, branch: ""},
+		{repo: TestRepo, branch: "unknown"},
+		{repo: TestRepo, branch: ""},
 	}
 
 	for i, tc := range cases {
@@ -112,13 +111,13 @@ func TestDeleteLatestRefFail(t *testing.T) {
 func TestCreateAndDeleteBranch(t *testing.T) {
 	c := testGitHubClient(t)
 
-	err := c.CreateBranch(TestLibraryRepo, "master", "test")
+	err := c.CreateBranch(TestRepo, "master", "test")
 
 	if err != nil {
 		t.Fatalf("CreateBranch: unexpected error occured: %s", err)
 	}
 
-	err = c.DeleteLatestRef(TestLibraryRepo, "test")
+	err = c.DeleteLatestRef(TestRepo, "test")
 
 	if err != nil {
 		t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
@@ -131,12 +130,12 @@ func TestCreatePullRequestFail(t *testing.T) {
 	}{
 		{repo: "unknowwn", title: "Test PR!", head: "develop", base: "master", body: "This is a test PR!"},
 		{repo: "", title: "Test PR!", head: "develop", base: "master", body: "This is a test PR!"},
-		{repo: TestLibraryRepo, title: "", head: "develop", base: "master", body: "This is a test PR!"},
-		{repo: TestLibraryRepo, title: "Test PR!", head: "unknown", base: "master", body: "This is a test PR!"},
-		{repo: TestLibraryRepo, title: "Test PR!", head: "", base: "master", body: "This is a test PR!"},
-		{repo: TestLibraryRepo, title: "Test PR!", head: "develop", base: "unknown", body: "This is a test PR!"},
-		{repo: TestLibraryRepo, title: "Test PR!", head: "develop", base: "", body: "This is a test PR!"},
-		{repo: TestLibraryRepo, title: "Test PR!", head: "develop", base: "master", body: ""},
+		{repo: TestRepo, title: "", head: "develop", base: "master", body: "This is a test PR!"},
+		{repo: TestRepo, title: "Test PR!", head: "unknown", base: "master", body: "This is a test PR!"},
+		{repo: TestRepo, title: "Test PR!", head: "", base: "master", body: "This is a test PR!"},
+		{repo: TestRepo, title: "Test PR!", head: "develop", base: "unknown", body: "This is a test PR!"},
+		{repo: TestRepo, title: "Test PR!", head: "develop", base: "", body: "This is a test PR!"},
+		{repo: TestRepo, title: "Test PR!", head: "develop", base: "master", body: ""},
 	}
 
 	for i, tc := range cases {
@@ -158,8 +157,8 @@ func TestMergePullRequestFail(t *testing.T) {
 	}{
 		{repo: "unknowwn", number: 100},
 		{repo: "", number: 100},
-		{repo: TestLibraryRepo, number: 100},
-		{repo: TestLibraryRepo, number: 0},
+		{repo: TestRepo, number: 100},
+		{repo: TestRepo, number: 0},
 	}
 
 	for i, tc := range cases {
@@ -178,8 +177,8 @@ func TestClosePullRequestFail(t *testing.T) {
 	}{
 		{repo: "unknowwn", number: 100},
 		{repo: "", number: 100},
-		{repo: TestLibraryRepo, number: 100},
-		{repo: TestLibraryRepo, number: 0},
+		{repo: TestRepo, number: 100},
+		{repo: TestRepo, number: 0},
 	}
 
 	for i, tc := range cases {
@@ -197,54 +196,54 @@ func TestCreateAndMergeAndClosePullRequestSuccess(t *testing.T) {
 	masterReplica, developReplica := "master_replica", "develop_replica"
 
 	// Create new branches for this test
-	err := c.CreateBranch(TestLibraryRepo, "master", masterReplica)
+	err := c.CreateBranch(TestRepo, "master", masterReplica)
 
 	if err != nil {
 		t.Fatalf("CreateBranch: unexpected error occured: %s", err)
 	}
 
-	err = c.CreateBranch(TestLibraryRepo, "develop", developReplica)
+	err = c.CreateBranch(TestRepo, "develop", developReplica)
 
 	if err != nil {
 		t.Fatalf("CreateBranch: unexpected error occured: %s", err)
 	}
 
 	// Create PR develop_replica -> master_replica
-	developRepToMasterRepPR, err := c.CreatePullRequest(TestLibraryRepo, "First Test PR for TestCreateAndMergeAndClosePullRequest", developReplica, masterReplica, "Test PR!")
+	developRepToMasterRepPR, err := c.CreatePullRequest(TestRepo, "First Test PR for TestCreateAndMergeAndClosePullRequest", developReplica, masterReplica, "Test PR!")
 
 	if err != nil {
 		t.Fatalf("CreatePullRequest: unexpected error occured: %s", err)
 	}
 
 	// Merge PR develop_replica -> master_replica
-	err = c.MergePullRequest(TestLibraryRepo, *developRepToMasterRepPR.Number)
+	err = c.MergePullRequest(TestRepo, *developRepToMasterRepPR.Number)
 
 	if err != nil {
 		t.Fatalf("MergePullRequest: unexpected error occured: %s", err)
 	}
 
 	// Create PR master_replica -> master
-	masterRepToMasterPR, err := c.CreatePullRequest(TestLibraryRepo, "Second Test PR for TestCreateAndMergeAndClosePullRequest", masterReplica, "master", "Test PR!")
+	masterRepToMasterPR, err := c.CreatePullRequest(TestRepo, "Second Test PR for TestCreateAndMergeAndClosePullRequest", masterReplica, "master", "Test PR!")
 
 	if err != nil {
 		t.Fatalf("CreatePullRequest: unexpected error occured: %s", err)
 	}
 
 	// Close PR master_replica -> master
-	err = c.ClosePullRequest(TestLibraryRepo, *masterRepToMasterPR.Number)
+	err = c.ClosePullRequest(TestRepo, *masterRepToMasterPR.Number)
 
 	if err != nil {
 		t.Fatalf("MergePullRequest: unexpected error occured: %s", err)
 	}
 
 	// Clean up the branches created for this test
-	err = c.DeleteLatestRef(TestLibraryRepo, masterReplica)
+	err = c.DeleteLatestRef(TestRepo, masterReplica)
 
 	if err != nil {
 		t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
 	}
 
-	err = c.DeleteLatestRef(TestLibraryRepo, developReplica)
+	err = c.DeleteLatestRef(TestRepo, developReplica)
 
 	if err != nil {
 		t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
@@ -257,10 +256,10 @@ func TestGetFileFail(t *testing.T) {
 	}{
 		{repo: "unknowwn", branch: "master", path: "main.go"},
 		{repo: "", branch: "master", path: "main.go"},
-		{repo: TestLibraryRepo, branch: "unknown", path: "main.go"},
-		{repo: TestLibraryRepo, branch: "", path: "main.go"},
-		{repo: TestLibraryRepo, branch: "master", path: "unknown.go"},
-		{repo: TestLibraryRepo, branch: "master", path: ""},
+		{repo: TestRepo, branch: "unknown", path: "main.go"},
+		{repo: TestRepo, branch: "", path: "main.go"},
+		{repo: TestRepo, branch: "master", path: "unknown.go"},
+		{repo: TestRepo, branch: "master", path: ""},
 	}
 
 	for i, tc := range cases {
@@ -275,7 +274,7 @@ func TestGetFileFail(t *testing.T) {
 func TestGetFileSuccess(t *testing.T) {
 	c := testGitHubClient(t)
 
-	file, err := c.GetFile(TestLibraryRepo, "master", "main.go")
+	file, err := c.GetFile(TestRepo, "master", "main.go")
 
 	if err != nil {
 		t.Fatalf("GetFile: unexpected error occured: %s", err)
@@ -289,7 +288,7 @@ func TestGetFileSuccess(t *testing.T) {
 
 func TestUpdateFileFail(t *testing.T) {
 	c := testGitHubClient(t)
-	f, err := c.GetFile(TestLibraryRepo, "master", "main.go")
+	f, err := c.GetFile(TestRepo, "master", "main.go")
 
 	if err != nil {
 		t.Fatalf("GetFile: unexpected error occured: %s", err)
@@ -300,15 +299,15 @@ func TestUpdateFileFail(t *testing.T) {
 	}{
 		{repo: "unknowwn", branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
 		{repo: "", branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
-		{repo: TestLibraryRepo, branch: "unknown", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
-		{repo: TestLibraryRepo, branch: "", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
-		{repo: TestLibraryRepo, branch: "master", path: "unknown.go", sha: *f.SHA, message: "test!", content: "test"},
-		{repo: TestLibraryRepo, branch: "master", path: "", sha: *f.SHA, message: "test!", content: "test"},
-		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: "unknown", message: "test!", content: "test"},
-		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: "", message: "test!", content: "test"},
-		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: "unknown", message: "test!", content: "test"},
-		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: *f.SHA, message: "", content: "test"},
-		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: ""},
+		{repo: TestRepo, branch: "unknown", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: TestRepo, branch: "", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: TestRepo, branch: "master", path: "unknown.go", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: TestRepo, branch: "master", path: "", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: TestRepo, branch: "master", path: "main.go", sha: "unknown", message: "test!", content: "test"},
+		{repo: TestRepo, branch: "master", path: "main.go", sha: "", message: "test!", content: "test"},
+		{repo: TestRepo, branch: "master", path: "main.go", sha: "unknown", message: "test!", content: "test"},
+		{repo: TestRepo, branch: "master", path: "main.go", sha: *f.SHA, message: "", content: "test"},
+		{repo: TestRepo, branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: ""},
 	}
 
 	for i, tc := range cases {
@@ -324,31 +323,31 @@ func TestUpdateFileSuccess(t *testing.T) {
 	testBranch := "test_update_file"
 
 	// Create new branches for this test
-	err := c.CreateBranch(TestLibraryRepo, "master", testBranch)
+	err := c.CreateBranch(TestRepo, "master", testBranch)
 
 	if err != nil {
 		t.Fatalf("CreateBranch: unexpected error occured: %s", err)
 	}
 
 	// Delete the branches created for this test
-	defer c.DeleteLatestRef(TestLibraryRepo, testBranch)
+	defer c.DeleteLatestRef(TestRepo, testBranch)
 
 	// Get main.go on the test branch
-	f, err := c.GetFile(TestLibraryRepo, testBranch, "main.go")
+	f, err := c.GetFile(TestRepo, testBranch, "main.go")
 
 	if err != nil {
 		t.Fatalf("GetFile: unexpected error occured: %s", err)
 	}
 
 	// Update main.go on the test branch
-	err = c.UpdateFile(TestLibraryRepo, testBranch, "main.go", *f.SHA, "Update main.go", []byte("test!"))
+	err = c.UpdateFile(TestRepo, testBranch, "main.go", *f.SHA, "Update main.go", []byte("test!"))
 
 	if err != nil {
 		t.Fatalf("UpdateFile: unexpected error occured: %s", err)
 	}
 
 	// Get updated main.go on the test branch
-	f, err = c.GetFile(TestLibraryRepo, testBranch, "main.go")
+	f, err = c.GetFile(TestRepo, testBranch, "main.go")
 
 	if err != nil {
 		t.Fatalf("GetFile: unexpected error occured: %s", err)
