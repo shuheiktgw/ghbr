@@ -225,7 +225,7 @@ func (g *GitHubClient) GetFile(repo, branch, path string) (*github.RepositoryCon
 }
 
 // UpdateFile updates a file with a given content
-func (g *GitHubClient) UpdateFile(repo, path, message, sha, branch string, content []byte) error {
+func (g *GitHubClient) UpdateFile(repo, branch, path, sha, message string, content []byte) error {
 	if len(path) == 0 {
 		return errors.New("missing Github file path")
 	}

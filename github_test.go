@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 	"os"
+	"encoding/base64"
 	)
 
 const (
@@ -283,6 +284,85 @@ func TestGetFileSuccess(t *testing.T) {
 	expected := "main.go"
 	if got := *file.Name; got != expected {
 		t.Fatalf("GetFile: unexpected file received: expected: %s, got: %s", expected, got)
+	}
+}
+
+func TestUpdateFileFail(t *testing.T) {
+	c := testGitHubClient(t)
+	f, err := c.GetFile(TestLibraryRepo, "master", "main.go")
+
+	if err != nil {
+		t.Fatalf("GetFile: unexpected error occured: %s", err)
+	}
+
+	cases := []struct {
+		repo, branch, path, sha, message, content string
+	}{
+		{repo: "unknowwn", branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: "", branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: TestLibraryRepo, branch: "unknown", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: TestLibraryRepo, branch: "", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: TestLibraryRepo, branch: "master", path: "unknown.go", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: TestLibraryRepo, branch: "master", path: "", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: "unknown", message: "test!", content: "test"},
+		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: "", message: "test!", content: "test"},
+		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: "unknown", message: "test!", content: "test"},
+		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: *f.SHA, message: "", content: "test"},
+		{repo: TestLibraryRepo, branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: ""},
+	}
+
+	for i, tc := range cases {
+		if err := c.UpdateFile(tc.repo, tc.branch, tc.path, tc.sha, tc.message, []byte(tc.content)); err == nil {
+			t.Fatalf("#%d UpdateFile: error is not supposed to be nil", i)
+		}
+	}
+}
+
+func TestUpdateFileSuccess(t *testing.T) {
+	c := testGitHubClient(t)
+
+	testBranch := "test_update_file"
+
+	// Create new branches for this test
+	err := c.CreateBranch(TestLibraryRepo, "master", testBranch)
+
+	if err != nil {
+		t.Fatalf("CreateBranch: unexpected error occured: %s", err)
+	}
+
+	// Delete the branches created for this test
+	defer c.DeleteLatestRef(TestLibraryRepo, testBranch)
+
+	// Get main.go on the test branch
+	f, err := c.GetFile(TestLibraryRepo, testBranch, "main.go")
+
+	if err != nil {
+		t.Fatalf("GetFile: unexpected error occured: %s", err)
+	}
+
+	// Update main.go on the test branch
+	err = c.UpdateFile(TestLibraryRepo, testBranch, "main.go", *f.SHA, "Update main.go", []byte("test!"))
+
+	if err != nil {
+		t.Fatalf("UpdateFile: unexpected error occured: %s", err)
+	}
+
+	// Get updated main.go on the test branch
+	f, err = c.GetFile(TestLibraryRepo, testBranch, "main.go")
+
+	if err != nil {
+		t.Fatalf("GetFile: unexpected error occured: %s", err)
+	}
+
+	// Check if the content is as expected
+	decoded, err := base64.StdEncoding.DecodeString(*f.Content)
+
+	if err != nil {
+		t.Fatalf("failed to decode main.go: %s", err)
+	}
+
+	if string(decoded) != "test!" {
+		t.Fatalf("unexpected content: got: %s, want: %s", string(decoded), "test!")
 	}
 }
 
