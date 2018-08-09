@@ -157,6 +157,14 @@ func (g *GitHubClient) CreatePullRequest(repo, title, head, base, body string) (
 
 // MergePullRequest merges Pull Request with a give Pull Request number
 func (g *GitHubClient) MergePullRequest(repo string, number int) error {
+	if len(repo) == 0 {
+		return errors.New("missing Github Repository name")
+	}
+
+	if number == 0 {
+		return errors.New("missing Github Pull Request number")
+	}
+
 	_, res, err := g.Client.PullRequests.Merge(context.TODO(), g.Owner, repo, number, "", nil)
 
 	if err != nil {

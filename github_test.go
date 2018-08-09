@@ -150,6 +150,106 @@ func TestCreatePullRequestFail(t *testing.T) {
 	}
 }
 
+func TestMergePullRequestFail(t *testing.T) {
+	cases := []struct {
+		repo string
+		number int
+	}{
+		{repo: "unknowwn", number: 100},
+		{repo: "", number: 100},
+		{repo: TestLibraryRepo, number: 100},
+		{repo: TestLibraryRepo, number: 0},
+	}
+
+	for i, tc := range cases {
+		c := testGitHubClient(t)
+
+		if err := c.MergePullRequest(tc.repo, tc.number); err == nil {
+			t.Fatalf("#%d MergePullRequest: error is not supposed to be nil", i)
+		}
+	}
+}
+
+func TestClosePullRequestFail(t *testing.T) {
+	cases := []struct {
+		repo string
+		number int
+	}{
+		{repo: "unknowwn", number: 100},
+		{repo: "", number: 100},
+		{repo: TestLibraryRepo, number: 100},
+		{repo: TestLibraryRepo, number: 0},
+	}
+
+	for i, tc := range cases {
+		c := testGitHubClient(t)
+
+		if err := c.ClosePullRequest(tc.repo, tc.number); err == nil {
+			t.Fatalf("#%d ClosePullRequest: error is not supposed to be nil", i)
+		}
+	}
+}
+
+func TestCreateAndMergeAndClosePullRequestSuccess(t *testing.T) {
+	c := testGitHubClient(t)
+
+	masterReplica, developReplica := "master_replica", "develop_replica"
+
+	// Create new branches for this test
+	err := c.CreateBranch(TestLibraryRepo, "master", masterReplica)
+
+	if err != nil {
+		t.Fatalf("CreateBranch: unexpected error occured: %s", err)
+	}
+
+	err = c.CreateBranch(TestLibraryRepo, "develop", developReplica)
+
+	if err != nil {
+		t.Fatalf("CreateBranch: unexpected error occured: %s", err)
+	}
+
+	// Create PR develop_replica -> master_replica
+	developRepToMasterRepPR, err := c.CreatePullRequest(TestLibraryRepo, "First Test PR for TestCreateAndMergeAndClosePullRequest", developReplica, masterReplica, "Test PR!")
+
+	if err != nil {
+		t.Fatalf("CreatePullRequest: unexpected error occured: %s", err)
+	}
+
+	// Merge PR develop_replica -> master_replica
+	err = c.MergePullRequest(TestLibraryRepo, *developRepToMasterRepPR.Number)
+
+	if err != nil {
+		t.Fatalf("MergePullRequest: unexpected error occured: %s", err)
+	}
+
+	// Create PR master_replica -> master
+	masterRepToMasterPR, err := c.CreatePullRequest(TestLibraryRepo, "Second Test PR for TestCreateAndMergeAndClosePullRequest", masterReplica, "master", "Test PR!")
+
+	if err != nil {
+		t.Fatalf("CreatePullRequest: unexpected error occured: %s", err)
+	}
+
+	// Close PR master_replica -> master
+	err = c.ClosePullRequest(TestLibraryRepo, *masterRepToMasterPR.Number)
+
+	if err != nil {
+		t.Fatalf("MergePullRequest: unexpected error occured: %s", err)
+	}
+
+	// Clean up the branches created for this test
+	err = c.DeleteLatestRef(TestLibraryRepo, masterReplica)
+
+	if err != nil {
+		t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
+	}
+
+	err = c.DeleteLatestRef(TestLibraryRepo, developReplica)
+
+	if err != nil {
+		t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
+	}
+}
+
 func TestGetFileFail(t *testing.T) {
 	cases := []struct {
 		repo, branch, path string
