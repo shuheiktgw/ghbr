@@ -4,7 +4,8 @@ import (
 	"testing"
 	"os"
 	"encoding/base64"
-	)
+	"time"
+)
 
 const (
 	TestOwner = "shuheiktgwtest"
@@ -214,6 +215,9 @@ func TestCreateAndMergeAndClosePullRequestSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreatePullRequest: unexpected error occured: %s", err)
 	}
+
+	// Wait a few seconds to prevent 405 Error
+	time.Sleep(3 * time.Second)
 
 	// Merge PR develop_replica -> master_replica
 	err = c.MergePullRequest(TestRepo, *developRepToMasterRepPR.Number)
