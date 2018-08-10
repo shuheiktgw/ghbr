@@ -301,7 +301,6 @@ func TestUpdateFileFail(t *testing.T) {
 		{repo: "", branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
 		{repo: TestRepo, branch: "unknown", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
 		{repo: TestRepo, branch: "", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
-		{repo: TestRepo, branch: "master", path: "unknown.go", sha: *f.SHA, message: "test!", content: "test"},
 		{repo: TestRepo, branch: "master", path: "", sha: *f.SHA, message: "test!", content: "test"},
 		{repo: TestRepo, branch: "master", path: "main.go", sha: "unknown", message: "test!", content: "test"},
 		{repo: TestRepo, branch: "master", path: "main.go", sha: "", message: "test!", content: "test"},
