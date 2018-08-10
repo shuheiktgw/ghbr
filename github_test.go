@@ -209,6 +209,21 @@ func TestCreateAndMergeAndClosePullRequestSuccess(t *testing.T) {
 		t.Fatalf("CreateBranch: unexpected error occured: %s", err)
 	}
 
+	// Clean up the branches created for this test
+	defer func() {
+		err = c.DeleteLatestRef(TestRepo, masterReplica)
+
+		if err != nil {
+			t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
+		}
+
+		err = c.DeleteLatestRef(TestRepo, developReplica)
+
+		if err != nil {
+			t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
+		}
+	}()
+
 	// Create PR develop_replica -> master_replica
 	developRepToMasterRepPR, err := c.CreatePullRequest(TestRepo, "First Test PR for TestCreateAndMergeAndClosePullRequest", developReplica, masterReplica, "Test PR!")
 
@@ -238,19 +253,6 @@ func TestCreateAndMergeAndClosePullRequestSuccess(t *testing.T) {
 
 	if err != nil {
 		t.Fatalf("MergePullRequest: unexpected error occured: %s", err)
-	}
-
-	// Clean up the branches created for this test
-	err = c.DeleteLatestRef(TestRepo, masterReplica)
-
-	if err != nil {
-		t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
-	}
-
-	err = c.DeleteLatestRef(TestRepo, developReplica)
-
-	if err != nil {
-		t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
 	}
 }
 
@@ -301,7 +303,7 @@ func TestUpdateFileFail(t *testing.T) {
 	cases := []struct {
 		repo, branch, path, sha, message, content string
 	}{
-		{repo: "unknowwn", branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
+		{repo: "unknown", branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
 		{repo: "", branch: "master", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
 		{repo: TestRepo, branch: "unknown", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
 		{repo: TestRepo, branch: "", path: "main.go", sha: *f.SHA, message: "test!", content: "test"},
@@ -333,7 +335,12 @@ func TestUpdateFileSuccess(t *testing.T) {
 	}
 
 	// Delete the branches created for this test
-	defer c.DeleteLatestRef(TestRepo, testBranch)
+	defer func() {
+		err = c.DeleteLatestRef(TestRepo, testBranch)
+		if err != nil {
+			t.Fatalf("DeleteLatestRef: unexpected error occured: %s", err)
+		}
+	}()
 
 	// Get main.go on the test branch
 	f, err := c.GetFile(TestRepo, testBranch, "main.go")
