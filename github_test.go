@@ -12,7 +12,7 @@ const (
 	TestRepo  = "github-api-test-go-homebrew"
 )
 
-func testGitHubClient(t *testing.T) *GitHubClient {
+func testGitHubClient(t *testing.T) GitHub {
 	token := os.Getenv(EnvGitHubToken)
 	client, err := NewGitHubClient(TestOwner, token)
 	if err != nil {

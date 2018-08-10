@@ -11,6 +11,18 @@ import (
 // TODO: Move this const to a properer place
 const EnvGitHubToken = "GITHUB_TOKEN"
 
+// GitHub defines functions to interact with GitHub API
+type GitHub interface {
+	GetLatestRelease(repo string) (*github.RepositoryRelease, error)
+	CreateBranch(repo, origin, new string) error
+	DeleteLatestRef(repo, branch string) error
+	CreatePullRequest(repo, title, head, base, body string) (*github.PullRequest, error)
+	MergePullRequest(repo string, number int) error
+	ClosePullRequest(repo string, number int) error
+	GetFile(repo, branch, path string) (*github.RepositoryContent, error)
+	UpdateFile(repo, branch, path, sha, message string, content []byte) error
+}
+
 // GitHubClient is a clint to interact with Github API
 type GitHubClient struct {
 	Owner string
@@ -18,7 +30,7 @@ type GitHubClient struct {
 }
 
 // NewGitHubClient creates and initializes a new GitHubClient
-func NewGitHubClient(owner, token string) (*GitHubClient, error) {
+func NewGitHubClient(owner, token string) (GitHub, error) {
 	if len(owner) == 0 {
 		return nil, errors.New("missing Github owner name")
 	}
