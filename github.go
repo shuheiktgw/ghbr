@@ -272,7 +272,3 @@ func (g *GitHubClient) UpdateFile(repo, branch, path, sha, message string, conte
 
 	return nil
 }
-
-
-
-
