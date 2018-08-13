@@ -184,37 +184,39 @@ func decodeContent(rc *github.RepositoryContent) (string, error) {
 
 func updateFormula(content string, release *LatestRelease) (string, error) {
 	// Update version
-	vs := versionRegex.FindStringSubmatch(content)
+	c, err := findAndReplace(versionRegex, content, release.version)
 
-	if vs == nil {
-		return "", errors.New("could not find version definition in formula file")
+	if err != nil {
+		return "", err
 	}
-
-	v := vs[1]
-
-	c := strings.Replace(content, v, release.version, -1)
 
 	// Update url
-	us := urlRegex.FindStringSubmatch(content)
+	c, err = findAndReplace(urlRegex, c, release.url)
 
-	if us == nil {
-		return "", errors.New("could not find url definition in formula file")
+	if err != nil {
+		return "", err
 	}
-
-	u := us[1]
-
-	strings.Replace(c, u, release.url, -1)
 
 	// Update hash
-	ss := shaRegex.FindStringSubmatch(content)
+	c, err = findAndReplace(shaRegex, c, release.hash)
 
-	if ss == nil {
-		return "", errors.New("could not find hash definition in formula file")
+	if err != nil {
+		return "", err
 	}
 
-	s := ss[1]
+	return c, nil
+}
 
-	return strings.Replace(c, s, release.hash, -1), nil
+func findAndReplace(reg *regexp.Regexp, content, new string) (string, error) {
+	ms := reg.FindStringSubmatch(content)
+
+	if ms == nil {
+		return "", errors.New("could not find submatch")
+	}
+
+	old := ms[1]
+
+	return strings.Replace(content, old, new, -1), nil
 }
 
 
