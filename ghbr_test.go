@@ -8,7 +8,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/shuheiktgw/ghbr/mocks"
 	"github.com/google/go-github/github"
-)
+	)
 
 func TestGHBR_GetLatestRelease_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
@@ -37,8 +37,8 @@ func TestGHBR_GetLatestRelease_Success(t *testing.T) {
 		t.Fatalf("GetLatestRelease: unexpected error occured: %s", err)
 	}
 
-	if got, want := lr.tag, "v0.0.1"; got != want {
-		t.Fatalf("GetLatestRelease: wrong tag name is returned: got %s, want %s", got, want)
+	if got, want := lr.version, "v0.0.1"; got != want {
+		t.Fatalf("GetLatestRelease: wrong version name is returned: got %s, want %s", got, want)
 	}
 }
 
@@ -81,4 +81,3 @@ func TestGHBR_DownloadFile_Fail(t *testing.T) {
 		}
 	}
 }
-
