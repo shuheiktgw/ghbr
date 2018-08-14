@@ -12,7 +12,7 @@ import (
 	"fmt"
 )
 
-func TestGHBR_GetLatestRelease_Success(t *testing.T) {
+func TestGHBRClient_GetLatestRelease_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
@@ -31,32 +31,32 @@ func TestGHBR_GetLatestRelease_Success(t *testing.T) {
 	}
 	mockGitHub.EXPECT().GetLatestRelease("testRepo").Return(&mockRelease, nil).Times(1)
 
-	ghbr := GHBR{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
 
-	lr, err := ghbr.GetLatestRelease("testRepo")
+	lr, err := ghbr.GetCurrentRelease("testRepo")
 
 	if err != nil {
-		t.Fatalf("GetLatestRelease: unexpected error occured: %s", err)
+		t.Fatalf("GetCurrentRelease: unexpected error occured: %s", err)
 	}
 
 	if got, want := lr.version, "v0.0.1"; got != want {
-		t.Fatalf("GetLatestRelease: wrong version name is returned: got %s, want %s", got, want)
+		t.Fatalf("GetCurrentRelease: wrong version name is returned: got %s, want %s", got, want)
 	}
 }
 
-func TestGHBR_GetLatestRelease_Fail(t *testing.T) {
+func TestGHBRClient_GetLatestRelease_Fail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := GHBR{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
 
-	if _, err := ghbr.GetLatestRelease(""); err == nil {
-		t.Fatalf("GetLatestRelease: error is not supposed to be nil")
+	if _, err := ghbr.GetCurrentRelease(""); err == nil {
+		t.Fatalf("GetCurrentRelease: error is not supposed to be nil")
 	}
 }
 
-func TestGHBR_UpdateFormula_Success(t *testing.T) {
+func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
@@ -86,7 +86,7 @@ func TestGHBR_UpdateFormula_Success(t *testing.T) {
 	mockGitHub.EXPECT().UpdateFile(repo, newBranch, path, "hash", message, []byte(newContent)).Return(nil).Times(1)
 	mockGitHub.EXPECT().CreatePullRequest(repo, message, newBranch, branch, message).Return(nil, nil).Times(1)
 
-	ghbr := GHBR{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	err := ghbr.UpdateFormula(app, branch, &LatestRelease{version: newVersion, url: newURL, hash: newSha})
 
@@ -95,12 +95,12 @@ func TestGHBR_UpdateFormula_Success(t *testing.T) {
 	}
 }
 
-func TestGHBR_UpdateFormula_Fail(t *testing.T) {
+func TestGHBRClient_UpdateFormula_Fail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := GHBR{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	cases := []struct {
 		app, branch string
@@ -119,12 +119,12 @@ func TestGHBR_UpdateFormula_Fail(t *testing.T) {
 	}
 }
 
-func TestGHBR_DownloadFile_Success(t *testing.T) {
+func TestGHBRClient_DownloadFile_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := GHBR{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	path := "gemer_v0.0.1_darwin_amd64.zip"
 	url := "https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip"
@@ -137,12 +137,12 @@ func TestGHBR_DownloadFile_Success(t *testing.T) {
 	}
 }
 
-func TestGHBR_DownloadFile_Fail(t *testing.T) {
+func TestGHBRClient_DownloadFile_Fail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := GHBR{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	cases := []struct {
 		path, url string

@@ -54,7 +54,7 @@ func TestGetLatestReleaseFail(t *testing.T) {
 		c := testGitHubClient(t)
 
 		if _, err := c.GetLatestRelease(tc.repo); err == nil {
-			t.Fatalf("#%d GetLatestRelease: error is not supposed to be nil", i)
+			t.Fatalf("#%d GetCurrentRelease: error is not supposed to be nil", i)
 		}
 	}
 }
@@ -63,7 +63,7 @@ func TestGetLatestReleaseSuccess(t *testing.T) {
 	c := testGitHubClient(t)
 
 	if _, err := c.GetLatestRelease(TestRepo); err != nil {
-		t.Fatalf("GetLatestRelease: unexpected error occured: %s", err)
+		t.Fatalf("GetCurrentRelease: unexpected error occured: %s", err)
 	}
 }
 

@@ -52,7 +52,7 @@ func NewGitHubClient(owner, token string) (GitHub, error) {
 	}, nil
 }
 
-// GetLatestRelease returns the latest release of the given Repository
+// GetCurrentRelease returns the latest release of the given Repository
 func (g *GitHubClient) GetLatestRelease(repo string) (*github.RepositoryRelease, error) {
 	if len(repo) == 0 {
 		return nil, errors.New("missing Github repository name")

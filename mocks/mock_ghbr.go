@@ -33,17 +33,17 @@ func (m *MockGitHub) EXPECT() *MockGitHubMockRecorder {
 	return m.recorder
 }
 
-// GetLatestRelease mocks base method
+// GetCurrentRelease mocks base method
 func (m *MockGitHub) GetLatestRelease(repo string) (*github.RepositoryRelease, error) {
-	ret := m.ctrl.Call(m, "GetLatestRelease", repo)
+	ret := m.ctrl.Call(m, "GetCurrentRelease", repo)
 	ret0, _ := ret[0].(*github.RepositoryRelease)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetLatestRelease indicates an expected call of GetLatestRelease
+// GetCurrentRelease indicates an expected call of GetCurrentRelease
 func (mr *MockGitHubMockRecorder) GetLatestRelease(repo interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestRelease", reflect.TypeOf((*MockGitHub)(nil).GetLatestRelease), repo)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCurrentRelease", reflect.TypeOf((*MockGitHub)(nil).GetLatestRelease), repo)
 }
 
 // CreateBranch mocks base method

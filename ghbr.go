@@ -19,8 +19,15 @@ var versionRegex = regexp.MustCompile(`version\s['"]([\w.-]+)['"]`)
 var urlRegex = regexp.MustCompile(`url\s['"]((http|https)://[\w-./?%&=]+)['"]`)
 var shaRegex = regexp.MustCompile(`sha256\s['"]([0-9A-Fa-f]{64})['"]`)
 
-// GHBR define functions for Homebrew Formula
-type GHBR struct {
+// GHBR defines GHBRClient interface
+type GHBR interface {
+	GetCurrentRelease(repo string) (*LatestRelease, error)
+	UpdateFormula(app, branch string, release *LatestRelease)
+	DownloadFile(path, url string) error
+}
+
+// GHBRClient define functions for Homebrew Formula
+type GHBRClient struct {
 	GitHub GitHub
 
 	outStream io.Writer
@@ -31,8 +38,8 @@ type LatestRelease struct {
 	version, url, hash string
 }
 
-// GetLatestRelease returns the latest release version and calculates its checksum
-func (g *GHBR) GetLatestRelease(repo string) (*LatestRelease, error) {
+// GetCurrentRelease returns the latest release version and calculates its checksum
+func (g *GHBRClient) GetCurrentRelease(repo string) (*LatestRelease, error) {
 	if len(repo) == 0 {
 		return nil, errors.New("missing GitHub repository")
 	}
@@ -70,7 +77,7 @@ func (g *GHBR) GetLatestRelease(repo string) (*LatestRelease, error) {
 }
 
 // UpdateFormula updates the formula file to point to the latest release
-func (g *GHBR) UpdateFormula(app, branch string, release *LatestRelease) error {
+func (g *GHBRClient) UpdateFormula(app, branch string, release *LatestRelease) error {
 	if len(app) == 0 {
 		return errors.New("missing application name")
 	}
@@ -150,7 +157,7 @@ func (g *GHBR) UpdateFormula(app, branch string, release *LatestRelease) error {
 }
 
 // DownloadFile downloads a file from the url and save it to the path
-func (g *GHBR) DownloadFile(path, url string) error {
+func (g *GHBRClient) DownloadFile(path, url string) error {
 	if len(path) == 0 {
 		return errors.New("missing download file path")
 	}
