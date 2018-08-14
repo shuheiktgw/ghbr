@@ -1,9 +1,9 @@
 package main
 
 import (
-	"testing"
-	"os"
 	"encoding/base64"
+	"os"
+	"testing"
 	"time"
 )
 
@@ -71,11 +71,11 @@ func TestCreateBranchFail(t *testing.T) {
 	cases := []struct {
 		repo, origin, new string
 	}{
-		{repo: "unknowwn", origin: "master", new: "test" },
-		{repo: "", origin: "master", new: "test" },
-		{repo: TestRepo, origin: "unknown", new: "test" },
-		{repo: TestRepo, origin: "", new: "test" },
-		{repo: TestRepo, origin: "master", new: "" },
+		{repo: "unknowwn", origin: "master", new: "test"},
+		{repo: "", origin: "master", new: "test"},
+		{repo: TestRepo, origin: "unknown", new: "test"},
+		{repo: TestRepo, origin: "", new: "test"},
+		{repo: TestRepo, origin: "master", new: ""},
 	}
 
 	for i, tc := range cases {
@@ -153,7 +153,7 @@ func TestCreatePullRequestFail(t *testing.T) {
 
 func TestMergePullRequestFail(t *testing.T) {
 	cases := []struct {
-		repo string
+		repo   string
 		number int
 	}{
 		{repo: "unknowwn", number: 100},
@@ -173,7 +173,7 @@ func TestMergePullRequestFail(t *testing.T) {
 
 func TestClosePullRequestFail(t *testing.T) {
 	cases := []struct {
-		repo string
+		repo   string
 		number int
 	}{
 		{repo: "unknowwn", number: 100},
@@ -374,7 +374,3 @@ func TestUpdateFileSuccess(t *testing.T) {
 		t.Fatalf("unexpected content: got: %s, want: %s", string(decoded), "test!")
 	}
 }
-
-
-
-

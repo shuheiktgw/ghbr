@@ -5,11 +5,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/golang/mock/gomock"
-	"github.com/shuheiktgw/ghbr/mocks"
-	"github.com/google/go-github/github"
 	"encoding/base64"
 	"fmt"
+
+	"github.com/golang/mock/gomock"
+	"github.com/google/go-github/github"
+	"github.com/shuheiktgw/ghbr/mocks"
 )
 
 func TestGHBRClient_GetLatestRelease_Success(t *testing.T) {
@@ -19,15 +20,15 @@ func TestGHBRClient_GetLatestRelease_Success(t *testing.T) {
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
 	mockAssets := []github.ReleaseAsset{
 		{
-			Name:github.String("gemer_v0.0.1_darwin_386.zip"),
+			Name:               github.String("gemer_v0.0.1_darwin_386.zip"),
 			BrowserDownloadURL: github.String("https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_386.zip")},
 		{
-			Name:github.String("gemer_v0.0.1_darwin_amd64.zip"),
+			Name:               github.String("gemer_v0.0.1_darwin_amd64.zip"),
 			BrowserDownloadURL: github.String("https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip")},
 	}
 	mockRelease := github.RepositoryRelease{
 		TagName: github.String("v0.0.1"),
-		Assets: mockAssets,
+		Assets:  mockAssets,
 	}
 	mockGitHub.EXPECT().GetLatestRelease("testRepo").Return(&mockRelease, nil).Times(1)
 
@@ -65,8 +66,8 @@ func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
 	mockContent := base64.StdEncoding.EncodeToString([]byte("version 'v0.0.1' url 'https://github.com' sha256 'c59729923f23bdf90505283f92ae6ac81f90d94ec6a9df916b41daa843590f31'"))
 	mockRepositoryContent := github.RepositoryContent{
 		Encoding: github.String("base64"),
-		Content: github.String(mockContent),
-		SHA: github.String("hash"),
+		Content:  github.String(mockContent),
+		SHA:      github.String("hash"),
 	}
 
 	app := "gemer"
@@ -104,7 +105,7 @@ func TestGHBRClient_UpdateFormula_Fail(t *testing.T) {
 
 	cases := []struct {
 		app, branch string
-		release *LatestRelease
+		release     *LatestRelease
 	}{
 		{app: "", branch: "", release: nil},
 		{app: "", branch: "master", release: &LatestRelease{version: "v0.0.1", url: "https://github.com", hash: "123"}},

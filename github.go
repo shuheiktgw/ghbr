@@ -1,12 +1,13 @@
 package main
 
 import (
-	"golang.org/x/oauth2"
-	"github.com/google/go-github/github"
-	"github.com/pkg/errors"
 	"context"
 	"net/http"
-	)
+
+	"github.com/google/go-github/github"
+	"github.com/pkg/errors"
+	"golang.org/x/oauth2"
+)
 
 // TODO: Move this const to a properer place
 const EnvGitHubToken = "GITHUB_TOKEN"
@@ -25,7 +26,7 @@ type GitHub interface {
 
 // GitHubClient is a clint to interact with Github API
 type GitHubClient struct {
-	Owner string
+	Owner  string
 	Client *github.Client
 }
 
@@ -47,7 +48,7 @@ func NewGitHubClient(owner, token string) (GitHub, error) {
 	client := github.NewClient(tc)
 
 	return &GitHubClient{
-		Owner: owner,
+		Owner:  owner,
 		Client: client,
 	}, nil
 }
@@ -81,7 +82,7 @@ func (g *GitHubClient) CreateBranch(repo, origin, new string) error {
 		return errors.New("missing Github new branch name")
 	}
 
-	originRef, res, err := g.Client.Git.GetRef(context.TODO(), g.Owner, repo, "heads/" + origin)
+	originRef, res, err := g.Client.Git.GetRef(context.TODO(), g.Owner, repo, "heads/"+origin)
 
 	if err != nil {
 		return errors.Wrapf(err, "failed to GetRef: branch name: %s", origin)
@@ -121,7 +122,7 @@ func (g *GitHubClient) DeleteLatestRef(repo, branch string) error {
 		return errors.New("missing Github branch name")
 	}
 
-	res, err := g.Client.Git.DeleteRef(context.TODO(), g.Owner, repo, "heads/" + branch)
+	res, err := g.Client.Git.DeleteRef(context.TODO(), g.Owner, repo, "heads/"+branch)
 
 	if err != nil {
 		return errors.Wrapf(err, "failed to DeleteRef of a branch name %s: %s", branch, err)
@@ -212,7 +213,7 @@ func (g *GitHubClient) GetFile(repo, branch, path string) (*github.RepositoryCon
 	if len(repo) == 0 {
 		return nil, errors.New("missing Github repository name")
 	}
-	
+
 	if len(branch) == 0 {
 		return nil, errors.New("missing Github branch name")
 	}

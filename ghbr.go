@@ -1,16 +1,17 @@
 package main
 
 import (
-	"io"
-	"os"
-	"net/http"
-	"github.com/pkg/errors"
-	"github.com/google/go-github/github"
-	"strings"
 	"crypto/sha256"
-	"fmt"
 	"encoding/base64"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
 	"regexp"
+	"strings"
+
+	"github.com/google/go-github/github"
+	"github.com/pkg/errors"
 )
 
 const MacRelease = "darwin_amd64"
@@ -108,7 +109,7 @@ func (g *GHBRClient) UpdateFormula(app, branch string, release *LatestRelease) e
 	}
 
 	// Edit the formula file
-	newFormula, err :=  bumpsUpFormula(oldFormula, release)
+	newFormula, err := bumpsUpFormula(oldFormula, release)
 
 	if err != nil {
 		return err
@@ -133,7 +134,7 @@ func (g *GHBRClient) UpdateFormula(app, branch string, release *LatestRelease) e
 		*rc.SHA,
 		message,
 		[]byte(newFormula),
-		)
+	)
 
 	if err != nil {
 		// Delete branch if the update fails
@@ -215,7 +216,7 @@ func calculateSha256(path string) (string, error) {
 	}
 	defer f.Close()
 
-	if _, err :=  io.Copy(sha, f); err != nil {
+	if _, err := io.Copy(sha, f); err != nil {
 		return "", err
 	}
 
@@ -266,11 +267,3 @@ func findAndReplace(reg *regexp.Regexp, content, new string) (string, error) {
 
 	return strings.Replace(content, old, new, -1), nil
 }
-
-
-
-
-
-
-
-
