@@ -75,6 +75,10 @@ func (g *GHBR) UpdateFormula(app, branch string, release *LatestRelease) error {
 		return errors.New("missing application name")
 	}
 
+	if len(branch) == 0 {
+		return errors.New("missing GitHub branch")
+	}
+
 	if release == nil {
 		return errors.New("missing GitHub release")
 	}
@@ -90,13 +94,56 @@ func (g *GHBR) UpdateFormula(app, branch string, release *LatestRelease) error {
 	}
 
 	// Decode the formula file
-	_, err = decodeContent(rc)
+	oldFormula, err := decodeContent(rc)
 
 	if err != nil {
 		return err
 	}
 
-	// Update the formula file
+	// Edit the formula file
+	newFormula, err :=  bumpsUpFormula(oldFormula, release)
+
+	if err != nil {
+		return err
+	}
+
+	// Create a new feature branch
+	newBranch := fmt.Sprintf("bumps_up_to_%s", release.version)
+
+	err = g.GitHub.CreateBranch(repo, branch, newBranch)
+
+	if err != nil {
+		return err
+	}
+
+	// Update formula file on the feature branch
+	message := fmt.Sprintf("Bumps up to %s", release.version)
+
+	err = g.GitHub.UpdateFile(
+		repo,
+		newBranch,
+		path,
+		*rc.SHA,
+		message,
+		[]byte(newFormula),
+		)
+
+	if err != nil {
+		// Delete branch if the update fails
+		g.GitHub.DeleteLatestRef(repo, newBranch)
+
+		return err
+	}
+
+	// Create a PR from the feature branch to its origin
+	_, err = g.GitHub.CreatePullRequest(repo, message, newBranch, branch, message)
+
+	if err != nil {
+		// Delete branch if the create branch fails
+		g.GitHub.DeleteLatestRef(repo, newBranch)
+
+		return err
+	}
 
 	return nil
 
@@ -182,7 +229,7 @@ func decodeContent(rc *github.RepositoryContent) (string, error) {
 	return string(decoded), nil
 }
 
-func updateFormula(content string, release *LatestRelease) (string, error) {
+func bumpsUpFormula(content string, release *LatestRelease) (string, error) {
 	// Update version
 	c, err := findAndReplace(versionRegex, content, release.version)
 
@@ -198,13 +245,7 @@ func updateFormula(content string, release *LatestRelease) (string, error) {
 	}
 
 	// Update hash
-	c, err = findAndReplace(shaRegex, c, release.hash)
-
-	if err != nil {
-		return "", err
-	}
-
-	return c, nil
+	return findAndReplace(shaRegex, c, release.hash)
 }
 
 func findAndReplace(reg *regexp.Regexp, content, new string) (string, error) {
