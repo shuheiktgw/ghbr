@@ -8,20 +8,20 @@ import (
 	"github.com/tcnksm/go-latest"
 )
 
-// Name is the name of this application
-const Name = "ghbr"
-
 // The current version of ghbr
 const Version = "0.0.1"
 
 // The owner of ghbr
 const Owner = "shuheiktgw"
 
+// Name is the name of this application
+const Name = "ghbr"
+
 // OutputVersion outputs current version of ghbr. It also checks
 // the latest release and adds a warning to update ghbr
 func OutputVersion() string {
 	var b bytes.Buffer
-	fmt.Fprintf(&b, "%s current version v%s\n", Name, Version)
+	fmt.Fprintf(&b, "current version of %s is v%s\n", Name, Version)
 
 	// Get the latest release
 	verCheckCh := make(chan *latest.CheckResponse)
