@@ -9,9 +9,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// TODO: Move this const to a properer place
-const EnvGitHubToken = "GITHUB_TOKEN"
-
 // GitHub defines functions to interact with GitHub API
 type GitHub interface {
 	GetLatestRelease(repo string) (*github.RepositoryRelease, error)
