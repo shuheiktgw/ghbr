@@ -26,17 +26,31 @@
   revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/go-version"
+  packages = ["."]
+  revision = "270f2f71b1ee587f3b609f00f422b76a6b28f348"
+
+[[projects]]
   name = "github.com/pkg/errors"
   packages = ["."]
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
 
 [[projects]]
+  name = "github.com/tcnksm/go-latest"
+  packages = ["."]
+  revision = "86500ab1363a867dafe16905b5b85293a0d838eb"
+  version = "0.1.1"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = [
     "context",
-    "context/ctxhttp"
+    "context/ctxhttp",
+    "html",
+    "html/atom"
   ]
   revision = "f4c29de78a2a91c00474a2e689954305c350adf9"
 
@@ -66,6 +80,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3e4811be4548a0c4b2e431a7455ede6d894d68eea71e10643cf6f4ef15d9e2b5"
+  inputs-digest = "52fe330efa7b4d1033b18536eda5bf9b49525b881b2eea172743b87d6525d9b1"
   solver-name = "gps-cdcl"
   solver-version = 1
