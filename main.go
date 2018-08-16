@@ -1,7 +1,12 @@
 package main
 
-import "os"
+import (
+	"os"
+	"github.com/shuheiktgw/ghbr/cmd"
+)
+
+const EnvGitHubToken = "GITHUB_TOKEN"
 
 func main() {
-	os.Exit(0)
+	os.Exit(cmd.Execute())
 }

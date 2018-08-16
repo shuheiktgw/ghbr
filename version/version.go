@@ -1,4 +1,4 @@
-package main
+package version
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ const Name = "ghbr"
 // the latest release and adds a warning to update ghbr
 func OutputVersion() string {
 	var b bytes.Buffer
-	fmt.Fprintf(&b, "current version of %s is v%s\n", Name, Version)
+	fmt.Fprintf(&b, "The current version of %s is v%s\n", Name, Version)
 
 	// Get the latest release
 	verCheckCh := make(chan *latest.CheckResponse)
@@ -45,7 +45,7 @@ func OutputVersion() string {
 	case <-time.After(2 * time.Second):
 	case res := <-verCheckCh:
 		if res.Outdated {
-			fmt.Fprintf(&b, "The Latest version is v%s, please update\n", res.Current)
+			fmt.Fprintf(&b, "The Latest version is v%s, please update GHBR\n", res.Current)
 		}
 	}
 
