@@ -1,7 +1,6 @@
-package main
+package github
 
 import (
-
 	"encoding/base64"
 	"os"
 	"testing"
@@ -11,10 +10,11 @@ import (
 const (
 	TestOwner = "shuheiktgwtest"
 	TestRepo  = "github-api-test-go-homebrew"
+	TestGitHubToken = "GITHUB_TOKEN"
 )
 
 func testGitHubClient(t *testing.T) GitHub {
-	token := os.Getenv(EnvGitHubToken)
+	token := os.Getenv(TestGitHubToken)
 	client, err := NewGitHubClient(TestOwner, token)
 	if err != nil {
 		t.Fatal("NewGitHubClient failed:", err)

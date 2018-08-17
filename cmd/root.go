@@ -14,6 +14,8 @@ const (
 	ExitCodeError
 )
 
+const EnvGitHubToken = "GITHUB_TOKEN"
+
 var cfgFile string
 
 type cmdError struct {

@@ -1,4 +1,4 @@
-package main
+package ghbr
 
 import (
 	"crypto/sha256"
@@ -10,7 +10,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/google/go-github/github"
+	"github.com/shuheiktgw/ghbr/github"
+	goGithub "github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )
 
@@ -29,7 +30,7 @@ type GHBR interface {
 
 // GHBRClient define functions for Homebrew Formula
 type GHBRClient struct {
-	GitHub GitHub
+	GitHub github.GitHub
 
 	outStream io.Writer
 }
@@ -197,7 +198,7 @@ func (g *GHBRClient) DownloadFile(path, url string) error {
 	return nil
 }
 
-func findMacReleaseURL(release *github.RepositoryRelease) (string, error) {
+func findMacReleaseURL(release *goGithub.RepositoryRelease) (string, error) {
 	for _, a := range release.Assets {
 		if strings.Contains(*a.Name, MacRelease) {
 			return *a.BrowserDownloadURL, nil
@@ -223,7 +224,7 @@ func calculateSha256(path string) (string, error) {
 	return string(sha.Sum(nil)), nil
 }
 
-func decodeContent(rc *github.RepositoryContent) (string, error) {
+func decodeContent(rc *goGithub.RepositoryContent) (string, error) {
 	if *rc.Encoding != "base64" {
 		return "", errors.Errorf("unexpected encoding: %s", *rc.Encoding)
 	}

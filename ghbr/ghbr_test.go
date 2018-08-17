@@ -1,4 +1,4 @@
-package main
+package ghbr
 
 import (
 	"io/ioutil"

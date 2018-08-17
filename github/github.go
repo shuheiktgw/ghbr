@@ -1,30 +1,30 @@
-package main
+package github
 
 import (
 	"context"
 	"net/http"
 
-	"github.com/google/go-github/github"
+	goGithub "github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )
 
 // GitHub defines functions to interact with GitHub API
 type GitHub interface {
-	GetLatestRelease(repo string) (*github.RepositoryRelease, error)
+	GetLatestRelease(repo string) (*goGithub.RepositoryRelease, error)
 	CreateBranch(repo, origin, new string) error
 	DeleteLatestRef(repo, branch string) error
-	CreatePullRequest(repo, title, head, base, body string) (*github.PullRequest, error)
+	CreatePullRequest(repo, title, head, base, body string) (*goGithub.PullRequest, error)
 	MergePullRequest(repo string, number int) error
 	ClosePullRequest(repo string, number int) error
-	GetFile(repo, branch, path string) (*github.RepositoryContent, error)
+	GetFile(repo, branch, path string) (*goGithub.RepositoryContent, error)
 	UpdateFile(repo, branch, path, sha, message string, content []byte) error
 }
 
 // GitHubClient is a clint to interact with Github API
 type GitHubClient struct {
 	Owner  string
-	Client *github.Client
+	Client *goGithub.Client
 }
 
 // NewGitHubClient creates and initializes a new GitHubClient
@@ -42,7 +42,7 @@ func NewGitHubClient(owner, token string) (GitHub, error) {
 	})
 	tc := oauth2.NewClient(context.TODO(), ts)
 
-	client := github.NewClient(tc)
+	client := goGithub.NewClient(tc)
 
 	return &GitHubClient{
 		Owner:  owner,
@@ -51,7 +51,7 @@ func NewGitHubClient(owner, token string) (GitHub, error) {
 }
 
 // GetCurrentRelease returns the latest release of the given Repository
-func (g *GitHubClient) GetLatestRelease(repo string) (*github.RepositoryRelease, error) {
+func (g *GitHubClient) GetLatestRelease(repo string) (*goGithub.RepositoryRelease, error) {
 	if len(repo) == 0 {
 		return nil, errors.New("missing Github repository name")
 	}
@@ -89,9 +89,9 @@ func (g *GitHubClient) CreateBranch(repo, origin, new string) error {
 		return errors.Errorf("failed to GetRef: branch name: %s, invalid http status: %s", res.Status)
 	}
 
-	newRef := &github.Reference{
-		Ref: github.String("refs/heads/" + new),
-		Object: &github.GitObject{
+	newRef := &goGithub.Reference{
+		Ref: goGithub.String("refs/heads/" + new),
+		Object: &goGithub.GitObject{
 			SHA: originRef.Object.SHA,
 		},
 	}
@@ -133,7 +133,7 @@ func (g *GitHubClient) DeleteLatestRef(repo, branch string) error {
 }
 
 // CreatePullRequest creates Pull Request
-func (g *GitHubClient) CreatePullRequest(repo, title, head, base, body string) (*github.PullRequest, error) {
+func (g *GitHubClient) CreatePullRequest(repo, title, head, base, body string) (*goGithub.PullRequest, error) {
 	if len(title) == 0 {
 		return nil, errors.New("missing Github Pull Request title")
 	}
@@ -150,7 +150,7 @@ func (g *GitHubClient) CreatePullRequest(repo, title, head, base, body string) (
 		return nil, errors.New("missing Github Pull Request body")
 	}
 
-	opt := &github.NewPullRequest{Title: &title, Head: &head, Base: &base, Body: &body}
+	opt := &goGithub.NewPullRequest{Title: &title, Head: &head, Base: &base, Body: &body}
 
 	pr, res, err := g.Client.PullRequests.Create(context.TODO(), g.Owner, repo, opt)
 
@@ -190,7 +190,7 @@ func (g *GitHubClient) MergePullRequest(repo string, number int) error {
 
 // ClosePullRequest closes Pull Request with a give Pull Request number
 func (g *GitHubClient) ClosePullRequest(repo string, number int) error {
-	opt := &github.PullRequest{State: github.String("close")}
+	opt := &goGithub.PullRequest{State: goGithub.String("close")}
 
 	_, res, err := g.Client.PullRequests.Edit(context.TODO(), g.Owner, repo, number, opt)
 
@@ -206,7 +206,7 @@ func (g *GitHubClient) ClosePullRequest(repo string, number int) error {
 }
 
 // GetFile gets the specified file on GitHub
-func (g *GitHubClient) GetFile(repo, branch, path string) (*github.RepositoryContent, error) {
+func (g *GitHubClient) GetFile(repo, branch, path string) (*goGithub.RepositoryContent, error) {
 	if len(repo) == 0 {
 		return nil, errors.New("missing Github repository name")
 	}
@@ -219,7 +219,7 @@ func (g *GitHubClient) GetFile(repo, branch, path string) (*github.RepositoryCon
 		return nil, errors.New("missing Github file path")
 	}
 
-	opt := &github.RepositoryContentGetOptions{Ref: branch}
+	opt := &goGithub.RepositoryContentGetOptions{Ref: branch}
 
 	file, _, res, err := g.Client.Repositories.GetContents(context.TODO(), g.Owner, repo, path, opt)
 
@@ -256,7 +256,7 @@ func (g *GitHubClient) UpdateFile(repo, branch, path, sha, message string, conte
 		return errors.New("missing Github branch name")
 	}
 
-	opt := &github.RepositoryContentFileOptions{Message: &message, Content: content, SHA: &sha, Branch: &branch}
+	opt := &goGithub.RepositoryContentFileOptions{Message: &message, Content: content, SHA: &sha, Branch: &branch}
 
 	_, res, err := g.Client.Repositories.UpdateFile(context.TODO(), g.Owner, repo, path, opt)
 
