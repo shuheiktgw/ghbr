@@ -16,16 +16,16 @@ const (
 func TestRelease(t *testing.T) {
 	cases := []struct {
 		arg       string
-		ghbrError error
 
 		expectedGhbrCount    int
 		expectedErrorMessage string
 	}{
-		{arg: fmt.Sprintf("ghbr release -t test -u TestUser -r %s", testRepo), ghbrError: nil, expectedGhbrCount: 1, expectedErrorMessage: ""},
+		{arg: fmt.Sprintf("ghbr release -t test -u TestUser -r %s", testRepo), expectedGhbrCount: 1, expectedErrorMessage: ""},
+		{arg: fmt.Sprintf("ghbr release -t test -r %s", testRepo), expectedGhbrCount: 1, expectedErrorMessage: ""},
 	}
 
 	for i, tc := range cases {
-		generator, ctl := generateMockGHBR(t, tc.expectedGhbrCount, tc.ghbrError)
+		generator, ctl := generateMockGHBR(t, tc.expectedGhbrCount)
 		cmd := NewReleaseCmd(generator)
 
 		args := strings.Split(tc.arg, " ")
@@ -41,7 +41,7 @@ func TestRelease(t *testing.T) {
 	}
 }
 
-func generateMockGHBR(t *testing.T, count int, err error) (hbr.Generator, *gomock.Controller) {
+func generateMockGHBR(t *testing.T, count int) (hbr.Generator, *gomock.Controller) {
 	mockCtrl := gomock.NewController(t)
 
 	return func(token, owner string) hbr.GHBRWrapper {
@@ -50,7 +50,7 @@ func generateMockGHBR(t *testing.T, count int, err error) (hbr.Generator, *gomoc
 		release := &hbr.LatestRelease{}
 		mockWrapper.EXPECT().GetCurrentRelease(testRepo).Return(release).Times(count)
 		mockWrapper.EXPECT().UpdateFormula(testRepo, testBranch, release).Times(count)
-		mockWrapper.EXPECT().Err().Return(err).Times(count)
+		mockWrapper.EXPECT().Err().Return(nil).Times(count)
 
 		return mockWrapper
 	}, mockCtrl
