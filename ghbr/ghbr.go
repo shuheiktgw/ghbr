@@ -21,15 +21,52 @@ var versionRegex = regexp.MustCompile(`version\s['"]([\w.-]+)['"]`)
 var urlRegex = regexp.MustCompile(`url\s['"]((http|https)://[\w-./?%&=]+)['"]`)
 var shaRegex = regexp.MustCompile(`sha256\s['"]([0-9A-Fa-f]{64})['"]`)
 
-// GHBR defines GHBRClient interface
+// Generator defines a method to create GHBR
+type Generator func(token, owner, repo string) GHBR
+
+// GHBR abstracts Wrapper's interface
 type GHBR interface {
-	GetCurrentRelease(repo string) (*LatestRelease, error)
+	GetCurrentRelease(repo string) (*LatestRelease)
 	UpdateFormula(app, branch string, release *LatestRelease)
-	DownloadFile(path, url string) error
+	Err() error
 }
 
-// GHBRClient define functions for Homebrew Formula
-type GHBRClient struct {
+// Wrapper wraps Client to avoid ugly error handling
+type Wrapper struct {
+	client Client
+	err    error
+}
+
+// GetCurrentRelease wraps client's GetCurrentRelease method
+func (w *Wrapper) GetCurrentRelease(repo string) (*LatestRelease) {
+	if w.err != nil {
+		return nil
+	}
+
+	lr, err := w.client.GetCurrentRelease(repo)
+	w.err = err
+
+	return lr
+}
+
+// UpdateFormula wraps client's UpdateFormula method
+func (w *Wrapper) UpdateFormula(app, branch string, release *LatestRelease) {
+	if w.err != nil {
+		return
+	}
+
+	w.err = w.client.UpdateFormula(app, branch, release)
+
+	return
+}
+
+// Err returns the value of the err filed
+func (w *Wrapper) Err() error {
+	return w.err
+}
+
+// Client define functions for Homebrew Formula
+type Client struct {
 	GitHub github.GitHub
 
 	outStream io.Writer
@@ -41,7 +78,7 @@ type LatestRelease struct {
 }
 
 // GetCurrentRelease returns the latest release version and calculates its checksum
-func (g *GHBRClient) GetCurrentRelease(repo string) (*LatestRelease, error) {
+func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 	if len(repo) == 0 {
 		return nil, errors.New("missing GitHub repository")
 	}
@@ -61,7 +98,7 @@ func (g *GHBRClient) GetCurrentRelease(repo string) (*LatestRelease, error) {
 
 	// Download the release asset
 	path := "darwin_amd64.zip"
-	err = g.DownloadFile(path, url)
+	err = g.downloadFile(path, url)
 	defer os.Remove(path)
 
 	if err != nil {
@@ -79,7 +116,7 @@ func (g *GHBRClient) GetCurrentRelease(repo string) (*LatestRelease, error) {
 }
 
 // UpdateFormula updates the formula file to point to the latest release
-func (g *GHBRClient) UpdateFormula(app, branch string, release *LatestRelease) error {
+func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error {
 	if len(app) == 0 {
 		return errors.New("missing application name")
 	}
@@ -158,8 +195,8 @@ func (g *GHBRClient) UpdateFormula(app, branch string, release *LatestRelease) e
 
 }
 
-// DownloadFile downloads a file from the url and save it to the path
-func (g *GHBRClient) DownloadFile(path, url string) error {
+// downloadFile downloads a file from the url and save it to the path
+func (g *Client) downloadFile(path, url string) error {
 	if len(path) == 0 {
 		return errors.New("missing download file path")
 	}
@@ -185,7 +222,7 @@ func (g *GHBRClient) DownloadFile(path, url string) error {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return errors.Errorf("DownloadFile: invalid http status: %s", res.Status)
+		return errors.Errorf("downloadFile: invalid http status: %s", res.Status)
 	}
 
 	defer res.Body.Close()

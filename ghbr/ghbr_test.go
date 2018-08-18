@@ -32,7 +32,7 @@ func TestGHBRClient_GetLatestRelease_Success(t *testing.T) {
 	}
 	mockGitHub.EXPECT().GetLatestRelease("testRepo").Return(&mockRelease, nil).Times(1)
 
-	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	lr, err := ghbr.GetCurrentRelease("testRepo")
 
@@ -50,7 +50,7 @@ func TestGHBRClient_GetLatestRelease_Fail(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	if _, err := ghbr.GetCurrentRelease(""); err == nil {
 		t.Fatalf("GetCurrentRelease: error is not supposed to be nil")
@@ -87,7 +87,7 @@ func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
 	mockGitHub.EXPECT().UpdateFile(repo, newBranch, path, "hash", message, []byte(newContent)).Return(nil).Times(1)
 	mockGitHub.EXPECT().CreatePullRequest(repo, message, newBranch, branch, message).Return(nil, nil).Times(1)
 
-	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	err := ghbr.UpdateFormula(app, branch, &LatestRelease{version: newVersion, url: newURL, hash: newSha})
 
@@ -101,7 +101,7 @@ func TestGHBRClient_UpdateFormula_Fail(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	cases := []struct {
 		app, branch string
@@ -125,16 +125,16 @@ func TestGHBRClient_DownloadFile_Success(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	path := "gemer_v0.0.1_darwin_amd64.zip"
 	url := "https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip"
 
-	err := ghbr.DownloadFile(path, url)
+	err := ghbr.downloadFile(path, url)
 	defer os.Remove(path)
 
 	if err != nil {
-		t.Fatalf("DownloadFile: unexpected error occurred: %s", err)
+		t.Fatalf("downloadFile: unexpected error occurred: %s", err)
 	}
 }
 
@@ -143,7 +143,7 @@ func TestGHBRClient_DownloadFile_Fail(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := GHBRClient{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
 
 	cases := []struct {
 		path, url string
@@ -154,8 +154,8 @@ func TestGHBRClient_DownloadFile_Fail(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		if err := ghbr.DownloadFile(tc.path, tc.url); err == nil {
-			t.Fatalf("#%d DownloadFile: error is not supposed to be nil", i)
+		if err := ghbr.downloadFile(tc.path, tc.url); err == nil {
+			t.Fatalf("#%d downloadFile: error is not supposed to be nil", i)
 		}
 	}
 }
