@@ -1,13 +1,10 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
+		"os"
 
-	"github.com/mitchellh/go-homedir"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"github.com/shuheiktgw/ghbr/hbr"
+		"github.com/spf13/cobra"
+		"github.com/shuheiktgw/ghbr/hbr"
 )
 
 const (
@@ -19,8 +16,6 @@ const (
 )
 
 const EnvGitHubToken = "GITHUB_TOKEN"
-
-var cfgFile string
 
 type cmdError struct {
 	error
@@ -36,9 +31,6 @@ func NewRootCmd() *cobra.Command {
 		Use:   "ghbr",
 		Short: "GHBR is a simple CLI tool to create and update your Homebrew formula",
 	}
-	cobra.OnInitialize(initConfig)
-
-	cmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ghbr.yaml)")
 
 	cmd.AddCommand(NewVersionCmd())
 	cmd.AddCommand(NewReleaseCmd(hbr.GenerateGHBR))
@@ -60,25 +52,4 @@ func Execute() int {
 	}
 
 	return ExitCodeOK
-}
-
-func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".ghbr")
-	}
-
-	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
 }
