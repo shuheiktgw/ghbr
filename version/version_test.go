@@ -1,8 +1,8 @@
 package version
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestVersion_OutputVersion(t *testing.T) {

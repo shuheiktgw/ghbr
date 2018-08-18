@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	TestOwner = "shuheiktgwtest"
-	TestRepo  = "github-api-test-go-homebrew"
+	TestOwner       = "shuheiktgwtest"
+	TestRepo        = "github-api-test-go-homebrew"
 	TestGitHubToken = "GITHUB_TOKEN"
 )
 

@@ -1,14 +1,13 @@
 package cmd
 
 import (
-	"os"
 	"fmt"
+	"os"
 
+	"github.com/pkg/errors"
 	"github.com/shuheiktgw/ghbr/hbr"
-
 	"github.com/spf13/cobra"
 	"github.com/tcnksm/go-gitconfig"
-	"github.com/pkg/errors"
 )
 
 type releaseOptions struct {
@@ -19,9 +18,9 @@ var options releaseOptions
 
 func NewReleaseCmd(generator hbr.Generator) *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "release",
+		Use:     "release",
 		Aliases: []string{"update", "bumpup"},
-		Short: "Update your Homebrew formula to point to the latest release",
+		Short:   "Update your Homebrew formula to point to the latest release",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runRelease(generator)
 		},
@@ -58,7 +57,7 @@ func runRelease(generator hbr.Generator) error {
 	return nil
 }
 
-func parseFlags(cmd *cobra.Command) error{
+func parseFlags(cmd *cobra.Command) error {
 	// Token
 	dt, err := defaultToken()
 
@@ -69,7 +68,7 @@ func parseFlags(cmd *cobra.Command) error{
 	cmd.Flags().StringVarP(&options.token, "token", "t", dt, "GitHub personal access token")
 
 	if len(options.token) == 0 {
-		return fmt.Errorf("missing GitHub personal access token\n\n" +
+		return fmt.Errorf("missing GitHub personal access token\n\n"+
 			"Please set it via `-t` option, %s environment variable or github.token in .gitconfig\n", EnvGitHubToken)
 	}
 

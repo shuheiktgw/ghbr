@@ -1,13 +1,14 @@
 package cmd
 
 import (
-	"testing"
 	"bytes"
 	"strings"
+	"testing"
+
 	"github.com/shuheiktgw/ghbr/version"
 )
 
-func TestVersion (t *testing.T) {
+func TestVersion(t *testing.T) {
 	cmd := NewVersionCmd()
 
 	buf := new(bytes.Buffer)
@@ -24,5 +25,3 @@ func TestVersion (t *testing.T) {
 		t.Fatalf("invalid response: got: %s, want: %s", got, want)
 	}
 }
-
-

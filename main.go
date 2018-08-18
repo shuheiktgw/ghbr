@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+
 	"github.com/shuheiktgw/ghbr/cmd"
 )
 

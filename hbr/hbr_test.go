@@ -1,21 +1,20 @@
 package hbr
 
 import (
-		"os"
-	"testing"
-
 	"encoding/base64"
 	"fmt"
+	"os"
+	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-github/github"
-	"github.com/shuheiktgw/ghbr/mocks"
 	"github.com/pkg/errors"
+	"github.com/shuheiktgw/ghbr/mocks"
 )
 
 func TestGenerateGHBR(t *testing.T) {
 	cases := []struct {
-		token, owner string
+		token, owner          string
 		clientExist, errExist bool
 	}{
 		{token: "", owner: "", errExist: true},
@@ -39,7 +38,7 @@ func TestGenerateGHBR(t *testing.T) {
 
 func TestGHBRWrapper_GetCurrentRelease(t *testing.T) {
 	cases := []struct {
-		err error
+		err   error
 		count int
 	}{
 		{err: nil, count: 1},
@@ -61,7 +60,7 @@ func TestGHBRWrapper_GetCurrentRelease(t *testing.T) {
 
 func TestGHBRWrapper_UpdateFormula(t *testing.T) {
 	cases := []struct {
-		err error
+		err   error
 		count int
 	}{
 		{err: nil, count: 1},

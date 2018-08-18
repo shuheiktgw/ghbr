@@ -5,8 +5,9 @@
 package hbr
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockGHBRWrapper is a mock of GHBRWrapper interface

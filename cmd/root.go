@@ -1,10 +1,10 @@
 package cmd
 
 import (
-		"os"
+	"os"
 
-		"github.com/spf13/cobra"
 	"github.com/shuheiktgw/ghbr/hbr"
+	"github.com/spf13/cobra"
 )
 
 const (

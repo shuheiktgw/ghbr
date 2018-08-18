@@ -1,12 +1,13 @@
 package cmd
 
 import (
-	"testing"
-	"strings"
-	"github.com/shuheiktgw/ghbr/hbr"
-	"github.com/golang/mock/gomock"
 	"fmt"
-	)
+	"strings"
+	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/shuheiktgw/ghbr/hbr"
+)
 
 const (
 	testRepo   = "testRepo"
@@ -15,7 +16,7 @@ const (
 
 func TestRelease(t *testing.T) {
 	cases := []struct {
-		arg       string
+		arg string
 
 		expectedGhbrCount    int
 		expectedErrorMessage string

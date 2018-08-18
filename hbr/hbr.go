@@ -3,6 +3,7 @@ package hbr
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,10 +11,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/shuheiktgw/ghbr/github"
 	goGithub "github.com/google/go-github/github"
 	"github.com/pkg/errors"
-	"encoding/hex"
+	"github.com/shuheiktgw/ghbr/github"
 )
 
 const MacRelease = "darwin_amd64"
@@ -38,7 +38,7 @@ func GenerateGHBR(token, owner string) GHBRWrapper {
 
 // GHBRWrapper abstracts Wrapper's interface
 type GHBRWrapper interface {
-	GetCurrentRelease(repo string) (*LatestRelease)
+	GetCurrentRelease(repo string) *LatestRelease
 	UpdateFormula(app, branch string, release *LatestRelease)
 	Err() error
 }
@@ -50,7 +50,7 @@ type Wrapper struct {
 }
 
 // GetCurrentRelease wraps client's GetCurrentRelease method
-func (w *Wrapper) GetCurrentRelease(repo string) (*LatestRelease) {
+func (w *Wrapper) GetCurrentRelease(repo string) *LatestRelease {
 	if w.err != nil {
 		return nil
 	}
