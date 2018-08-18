@@ -7,6 +7,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/shuheiktgw/ghbr/ghbr"
 )
 
 const (
@@ -37,6 +38,7 @@ func NewRootCmd() *cobra.Command {
 	cmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ghbr.yaml)")
 
 	cmd.AddCommand(NewVersionCmd())
+	cmd.AddCommand(NewReleaseCmd(ghbr.GenerateGHBR))
 	return cmd
 }
 

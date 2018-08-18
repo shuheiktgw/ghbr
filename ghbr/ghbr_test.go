@@ -1,8 +1,7 @@
 package ghbr
 
 import (
-	"io/ioutil"
-	"os"
+		"os"
 	"testing"
 
 	"encoding/base64"
@@ -78,7 +77,7 @@ func TestGHBRClient_GetCurrentRelease_Success(t *testing.T) {
 	}
 	mockGitHub.EXPECT().GetLatestRelease("testRepo").Return(&mockRelease, nil).Times(1)
 
-	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub}
 
 	lr, err := ghbr.GetCurrentRelease("testRepo")
 
@@ -96,7 +95,7 @@ func TestGHBRClient_GetLatestRelease_Fail(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub}
 
 	if _, err := ghbr.GetCurrentRelease(""); err == nil {
 		t.Fatalf("GetCurrentRelease: error is not supposed to be nil")
@@ -133,7 +132,7 @@ func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
 	mockGitHub.EXPECT().UpdateFile(repo, newBranch, path, "hash", message, []byte(newContent)).Return(nil).Times(1)
 	mockGitHub.EXPECT().CreatePullRequest(repo, message, newBranch, branch, message).Return(nil, nil).Times(1)
 
-	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub}
 
 	err := ghbr.UpdateFormula(app, branch, &LatestRelease{version: newVersion, url: newURL, hash: newSha})
 
@@ -147,7 +146,7 @@ func TestGHBRClient_UpdateFormula_Fail(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub}
 
 	cases := []struct {
 		app, branch string
@@ -171,7 +170,7 @@ func TestGHBRClient_DownloadFile_Success(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub}
 
 	path := "gemer_v0.0.1_darwin_amd64.zip"
 	url := "https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip"
@@ -189,7 +188,7 @@ func TestGHBRClient_DownloadFile_Fail(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	ghbr := Client{GitHub: mockGitHub, outStream: ioutil.Discard}
+	ghbr := Client{GitHub: mockGitHub}
 
 	cases := []struct {
 		path, url string

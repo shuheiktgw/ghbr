@@ -38,7 +38,7 @@ func runRelease(cmd *cobra.Command, _ []string, generator ghbr.Generator) {
 		return
 	}
 
-	g := generator(options.token, options.owner, options.branch)
+	g := generator(options.token, options.owner)
 	lr := g.GetCurrentRelease(options.repo)
 	g.UpdateFormula(options.repo, options.branch, lr)
 

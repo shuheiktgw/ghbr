@@ -21,8 +21,19 @@ var versionRegex = regexp.MustCompile(`version\s['"]([\w.-]+)['"]`)
 var urlRegex = regexp.MustCompile(`url\s['"]((http|https)://[\w-./?%&=]+)['"]`)
 var shaRegex = regexp.MustCompile(`sha256\s['"]([0-9A-Fa-f]{64})['"]`)
 
+// Generator is a type for method to generate GBHRWrapper
+type Generator func(token, owner string) GHBRWrapper
+
 // Generator defines a method to create GHBRWrapper
-type Generator func(token, owner, repo string) GHBRWrapper
+func GenerateGHBR(token, owner string) GHBRWrapper {
+	gitHub, err := github.NewGitHubClient(owner, token)
+
+	if err != nil {
+		return Wrapper{client: nil, err: err}
+	}
+
+	return Wrapper{client: Client{GitHub: gitHub}, err: nil}
+}
 
 // GHBRWrapper abstracts Wrapper's interface
 type GHBRWrapper interface {
@@ -38,7 +49,7 @@ type Wrapper struct {
 }
 
 // GetCurrentRelease wraps client's GetCurrentRelease method
-func (w *Wrapper) GetCurrentRelease(repo string) (*LatestRelease) {
+func (w Wrapper) GetCurrentRelease(repo string) (*LatestRelease) {
 	if w.err != nil {
 		return nil
 	}
@@ -50,7 +61,7 @@ func (w *Wrapper) GetCurrentRelease(repo string) (*LatestRelease) {
 }
 
 // UpdateFormula wraps client's UpdateFormula method
-func (w *Wrapper) UpdateFormula(app, branch string, release *LatestRelease) {
+func (w Wrapper) UpdateFormula(app, branch string, release *LatestRelease) {
 	if w.err != nil {
 		return
 	}
@@ -61,7 +72,7 @@ func (w *Wrapper) UpdateFormula(app, branch string, release *LatestRelease) {
 }
 
 // Err returns the value of the err filed
-func (w *Wrapper) Err() error {
+func (w Wrapper) Err() error {
 	return w.err
 }
 
@@ -74,8 +85,6 @@ type GHBRClient interface {
 // Client define functions for Homebrew Formula
 type Client struct {
 	GitHub github.GitHub
-
-	outStream io.Writer
 }
 
 // LatestRelease contains latest release info
@@ -84,7 +93,7 @@ type LatestRelease struct {
 }
 
 // GetCurrentRelease returns the latest release version and calculates its checksum
-func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
+func (g Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 	if len(repo) == 0 {
 		return nil, errors.New("missing GitHub repository")
 	}
@@ -122,7 +131,7 @@ func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 }
 
 // UpdateFormula updates the formula file to point to the latest release
-func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error {
+func (g Client) UpdateFormula(app, branch string, release *LatestRelease) error {
 	if len(app) == 0 {
 		return errors.New("missing application name")
 	}
@@ -202,7 +211,7 @@ func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error
 }
 
 // downloadFile downloads a file from the url and save it to the path
-func (g *Client) downloadFile(path, url string) error {
+func (g Client) downloadFile(path, url string) error {
 	if len(path) == 0 {
 		return errors.New("missing download file path")
 	}
