@@ -11,9 +11,55 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-github/github"
 	"github.com/shuheiktgw/ghbr/mocks"
+	"github.com/pkg/errors"
 )
 
-func TestGHBRClient_GetLatestRelease_Success(t *testing.T) {
+func TestGHBRWrapper_GetCurrentRelease(t *testing.T) {
+	cases := []struct {
+		err error
+		count int
+	}{
+		{err: nil, count: 1},
+		{err: errors.New("error!"), count: 0},
+	}
+
+	for _, tc := range cases {
+		mockCtrl := gomock.NewController(t)
+		mockClient := NewMockGHBRClient(mockCtrl)
+
+		mockClient.EXPECT().GetCurrentRelease("testRepo").Return(&LatestRelease{}, nil).Times(tc.count)
+
+		wrapper := Wrapper{client: mockClient, err: tc.err}
+		wrapper.GetCurrentRelease("testRepo")
+
+		mockCtrl.Finish()
+	}
+}
+
+func TestGHBRWrapper_UpdateFormula(t *testing.T) {
+	cases := []struct {
+		err error
+		count int
+	}{
+		{err: nil, count: 1},
+		{err: errors.New("error!"), count: 0},
+	}
+
+	for _, tc := range cases {
+		mockCtrl := gomock.NewController(t)
+		mockClient := NewMockGHBRClient(mockCtrl)
+
+		release := &LatestRelease{}
+		mockClient.EXPECT().UpdateFormula("testApp", "master", release).Return(nil).Times(tc.count)
+
+		wrapper := Wrapper{client: mockClient, err: tc.err}
+		wrapper.UpdateFormula("testApp", "master", release)
+
+		mockCtrl.Finish()
+	}
+}
+
+func TestGHBRClient_GetCurrentRelease_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
