@@ -13,6 +13,30 @@ import (
 	"github.com/pkg/errors"
 )
 
+func TestGenerateGHBR(t *testing.T) {
+	cases := []struct {
+		token, owner string
+		clientExist, errExist bool
+	}{
+		{token: "", owner: "", errExist: true},
+		{token: "test", owner: "", errExist: true},
+		{token: "", owner: "test", errExist: true},
+		{token: "test", owner: "test", errExist: false},
+	}
+
+	for i, tc := range cases {
+		g := GenerateGHBR(tc.token, tc.owner)
+
+		if tc.errExist && g.Err() == nil {
+			t.Fatalf("#%d Error is not supposed to be nil", i)
+		}
+
+		if !tc.errExist && g.Err() != nil {
+			t.Fatalf("#%d Error is supposed to be nil", i)
+		}
+	}
+}
+
 func TestGHBRWrapper_GetCurrentRelease(t *testing.T) {
 	cases := []struct {
 		err error
