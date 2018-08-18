@@ -4,7 +4,7 @@ import (
 	"os"
 	"fmt"
 
-	"github.com/shuheiktgw/ghbr/ghbr"
+	"github.com/shuheiktgw/ghbr/hbr"
 
 	"github.com/spf13/cobra"
 	"github.com/tcnksm/go-gitconfig"
@@ -15,7 +15,7 @@ type releaseOptions struct {
 	token, owner, repo, branch string
 }
 
-func NewReleaseCmd(generator ghbr.Generator) *cobra.Command {
+func NewReleaseCmd(generator hbr.Generator) *cobra.Command {
 	var options *releaseOptions
 	var parseError error
 
@@ -38,7 +38,7 @@ func NewReleaseCmd(generator ghbr.Generator) *cobra.Command {
 	return cmd
 }
 
-func runRelease(options *releaseOptions, generator ghbr.Generator) error {
+func runRelease(options *releaseOptions, generator hbr.Generator) error {
 	g := generator(options.token, options.owner)
 	lr := g.GetCurrentRelease(options.repo)
 	g.UpdateFormula(options.repo, options.branch, lr)

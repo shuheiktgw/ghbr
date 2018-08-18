@@ -1,4 +1,4 @@
-package ghbr
+package hbr
 
 import (
 		"os"

@@ -3,7 +3,7 @@ package cmd
 import (
 	"testing"
 		"strings"
-		"github.com/shuheiktgw/ghbr/ghbr"
+		"github.com/shuheiktgw/ghbr/hbr"
 	"github.com/golang/mock/gomock"
 	"fmt"
 	"github.com/pkg/errors"
@@ -43,13 +43,13 @@ func TestRelease(t *testing.T) {
 	}
 }
 
-func generateMockGHBR(t *testing.T, count int, err error) (ghbr.Generator, *gomock.Controller)  {
+func generateMockGHBR(t *testing.T, count int, err error) (hbr.Generator, *gomock.Controller)  {
 	mockCtrl := gomock.NewController(t)
 
-	return func(token, owner string) ghbr.GHBRWrapper {
-		mockWrapper := ghbr.NewMockGHBRWrapper(mockCtrl)
+	return func(token, owner string) hbr.GHBRWrapper {
+		mockWrapper := hbr.NewMockGHBRWrapper(mockCtrl)
 
-		release := &ghbr.LatestRelease{}
+		release := &hbr.LatestRelease{}
 		mockWrapper.EXPECT().GetCurrentRelease(testRepo).Return(release).Times(count)
 		mockWrapper.EXPECT().UpdateFormula(testRepo, testBranch, release).Times(count)
 		mockWrapper.EXPECT().Err().Return(err).Times(count)
