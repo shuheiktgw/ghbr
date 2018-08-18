@@ -101,6 +101,7 @@ func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 	}
 
 	// Get latest release of the repository
+	fmt.Println("===> Getting the latest release")
 	release, err := g.GitHub.GetLatestRelease(repo)
 
 	if err != nil {
@@ -114,6 +115,7 @@ func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 	url, err := findMacReleaseURL(release)
 
 	// Download the release asset
+	fmt.Println("===> Downloading Darwin AMD64 release")
 	path := "darwin_amd64.zip"
 	err = g.downloadFile(path, url)
 	defer os.Remove(path)
@@ -123,6 +125,7 @@ func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 	}
 
 	// Calculate hash
+	fmt.Println("===> Calculating a checksum of the release")
 	hash, err := calculateSha256(path)
 
 	if err != nil {
@@ -150,6 +153,7 @@ func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error
 	path := fmt.Sprintf("%s.rb", app)
 
 	// Get the formula file
+	fmt.Println("===> Getting the current formula file")
 	rc, err := g.GitHub.GetFile(repo, branch, path)
 
 	if err != nil {
@@ -171,6 +175,7 @@ func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error
 	}
 
 	// Create a new feature branch
+	fmt.Println("===> Creating a new branch")
 	newBranch := fmt.Sprintf("bumps_up_to_%s", release.version)
 
 	err = g.GitHub.CreateBranch(repo, branch, newBranch)
@@ -180,6 +185,7 @@ func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error
 	}
 
 	// Update formula file on the feature branch
+	fmt.Println("===> Updating the formula file")
 	message := fmt.Sprintf("Bumps up to %s", release.version)
 
 	err = g.GitHub.UpdateFile(
@@ -199,7 +205,8 @@ func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error
 	}
 
 	// Create a PR from the feature branch to its origin
-	_, err = g.GitHub.CreatePullRequest(repo, message, newBranch, branch, message)
+	fmt.Printf("===> Creating a Pull Request\n\n")
+	pr, err := g.GitHub.CreatePullRequest(repo, message, newBranch, branch, message)
 
 	if err != nil {
 		// Delete branch if the create branch fails
@@ -208,6 +215,9 @@ func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error
 		return err
 	}
 
+	fmt.Printf("Yay! Now your formula is ready to update!\n\n")
+	fmt.Printf("Remaining tasks are below:\n")
+	fmt.Printf("Access %s and merge the Pull Request\n\n", *pr.HTMLURL)
 	return nil
 
 }
