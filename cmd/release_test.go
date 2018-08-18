@@ -2,24 +2,24 @@ package cmd
 
 import (
 	"testing"
-		"strings"
-		"github.com/shuheiktgw/ghbr/hbr"
+	"strings"
+	"github.com/shuheiktgw/ghbr/hbr"
 	"github.com/golang/mock/gomock"
 	"fmt"
 	"github.com/pkg/errors"
 )
 
 const (
-	testRepo = "testRepo"
+	testRepo   = "testRepo"
 	testBranch = "master"
 )
 
 func TestRelease(t *testing.T) {
 	cases := []struct {
-		arg string
+		arg       string
 		ghbrError error
 
-		expectedGhbrCount int
+		expectedGhbrCount    int
 		expectedErrorMessage string
 	}{
 		{arg: fmt.Sprintf("ghbr release -t test -u TestUser -r %s", testRepo), ghbrError: nil, expectedGhbrCount: 1, expectedErrorMessage: ""},
@@ -43,7 +43,7 @@ func TestRelease(t *testing.T) {
 	}
 }
 
-func generateMockGHBR(t *testing.T, count int, err error) (hbr.Generator, *gomock.Controller)  {
+func generateMockGHBR(t *testing.T, count int, err error) (hbr.Generator, *gomock.Controller) {
 	mockCtrl := gomock.NewController(t)
 
 	return func(token, owner string) hbr.GHBRWrapper {
@@ -57,5 +57,3 @@ func generateMockGHBR(t *testing.T, count int, err error) (hbr.Generator, *gomoc
 		return mockWrapper
 	}, mockCtrl
 }
-
-

@@ -33,7 +33,11 @@ func NewReleaseCmd(generator hbr.Generator) *cobra.Command {
 		SilenceUsage:  true,
 	}
 
-	options, parseError = parseFlags(cmd)
+	options, err := parseFlags(cmd)
+
+	if err != nil {
+		parseError = cmdError{error: err, exitCode: ExitCodeParseFlagsError}
+	}
 
 	return cmd
 }
