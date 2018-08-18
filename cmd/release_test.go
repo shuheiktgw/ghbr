@@ -6,8 +6,7 @@ import (
 	"github.com/shuheiktgw/ghbr/hbr"
 	"github.com/golang/mock/gomock"
 	"fmt"
-	"github.com/pkg/errors"
-)
+	)
 
 const (
 	testRepo   = "testRepo"
@@ -23,7 +22,6 @@ func TestRelease(t *testing.T) {
 		expectedErrorMessage string
 	}{
 		{arg: fmt.Sprintf("ghbr release -t test -u TestUser -r %s", testRepo), ghbrError: nil, expectedGhbrCount: 1, expectedErrorMessage: ""},
-		{arg: fmt.Sprintf("ghbr release -t test -u TestUser -r %s", testRepo), ghbrError: errors.New("GHBR Error!"), expectedGhbrCount: 1, expectedErrorMessage: "GHBR Error!"},
 	}
 
 	for i, tc := range cases {
