@@ -153,7 +153,7 @@ func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
 	mockGitHub.EXPECT().GetFile(repo, branch, path).Return(&mockRepositoryContent, nil).Times(1)
 	mockGitHub.EXPECT().CreateBranch(repo, branch, newBranch).Return(nil).Times(1)
 	mockGitHub.EXPECT().UpdateFile(repo, newBranch, path, "hash", message, []byte(newContent)).Return(nil).Times(1)
-	mockGitHub.EXPECT().CreatePullRequest(repo, message, newBranch, branch, message).Return(nil, nil).Times(1)
+	mockGitHub.EXPECT().CreatePullRequest(repo, message, newBranch, branch, message).Return(&github.PullRequest{HTMLURL: github.String("test.com")}, nil).Times(1)
 
 	ghbr := Client{GitHub: mockGitHub}
 
