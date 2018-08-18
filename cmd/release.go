@@ -20,8 +20,8 @@ func NewReleaseCmd(generator ghbr.Generator) *cobra.Command {
 		Use: "release",
 		Aliases: []string{"update", "bumpup"},
 		Short: "Update your Homebrew formula to point to the latest release",
-		Run: func(cmd *cobra.Command, args []string) {
-			runRelease(cmd, args, generator)
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runRelease(cmd, args, generator)
 		},
 		SilenceErrors: true,
 		SilenceUsage:  true,
@@ -30,12 +30,11 @@ func NewReleaseCmd(generator ghbr.Generator) *cobra.Command {
 	return cmd
 }
 
-func runRelease(cmd *cobra.Command, _ []string, generator ghbr.Generator) {
+func runRelease(cmd *cobra.Command, _ []string, generator ghbr.Generator) error {
 	options, err := parseFlags(cmd)
 
 	if err != nil {
-		cmd.Print(err)
-		return
+		return cmdError{error: err, exitCode: ExitCodeParseFlagsError}
 	}
 
 	g := generator(options.token, options.owner)
@@ -43,10 +42,10 @@ func runRelease(cmd *cobra.Command, _ []string, generator ghbr.Generator) {
 	g.UpdateFormula(options.repo, options.branch, lr)
 
 	if err := g.Err(); err != nil {
-		cmd.Print(err)
+		return err
 	}
 
-	return
+	return nil
 }
 
 func parseFlags(cmd *cobra.Command) (*releaseOptions, error) {

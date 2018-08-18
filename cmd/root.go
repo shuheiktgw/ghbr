@@ -11,8 +11,11 @@ import (
 )
 
 const (
-	ExitCodeOK    = iota
-	ExitCodeError
+	ExitCodeOK int = 0
+
+	// Error Starts from 10
+	ExitCodeError = 10 + iota
+	ExitCodeParseFlagsError
 )
 
 const EnvGitHubToken = "GITHUB_TOKEN"

@@ -4,7 +4,7 @@ import (
 	"github.com/shuheiktgw/ghbr/version"
 
 	"github.com/spf13/cobra"
-)
+	)
 
 func NewVersionCmd() *cobra.Command {
 	cmd := &cobra.Command{
