@@ -15,34 +15,38 @@ type releaseOptions struct {
 	token, owner, repo, branch string
 }
 
-func NewReleaseCmd(generator hbr.Generator) *cobra.Command {
-	var options *releaseOptions
-	var parseError error
+var options releaseOptions
 
+func NewReleaseCmd(generator hbr.Generator) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "release",
 		Aliases: []string{"update", "bumpup"},
 		Short: "Update your Homebrew formula to point to the latest release",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return parseError
-		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runRelease(options, generator)
+			return runRelease(generator)
 		},
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
 
-	options, err := parseFlags(cmd)
-
-	if err != nil {
-		parseError = cmdError{error: err, exitCode: ExitCodeParseFlagsError}
-	}
+	setPreRunE(cmd)
 
 	return cmd
 }
 
-func runRelease(options *releaseOptions, generator hbr.Generator) error {
+func setPreRunE(cmd *cobra.Command) {
+	err := parseFlags(cmd)
+
+	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		if err != nil {
+			return cmdError{error: err, exitCode: ExitCodeParseFlagsError}
+		}
+
+		return err
+	}
+}
+
+func runRelease(generator hbr.Generator) error {
 	g := generator(options.token, options.owner)
 	lr := g.GetCurrentRelease(options.repo)
 	g.UpdateFormula(options.repo, options.branch, lr)
@@ -54,20 +58,18 @@ func runRelease(options *releaseOptions, generator hbr.Generator) error {
 	return nil
 }
 
-func parseFlags(cmd *cobra.Command) (*releaseOptions, error) {
-	var options releaseOptions
-
+func parseFlags(cmd *cobra.Command) error{
 	// Token
 	dt, err := defaultToken()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	cmd.Flags().StringVarP(&options.token, "token", "t", dt, "GitHub personal access token")
 
 	if len(options.token) == 0 {
-		return nil, fmt.Errorf("missing GitHub personal access token\n\n" +
+		return fmt.Errorf("missing GitHub personal access token\n\n" +
 			"Please set it via `-t` option, %s environment variable or github.token in .gitconfig\n", EnvGitHubToken)
 	}
 
@@ -75,13 +77,13 @@ func parseFlags(cmd *cobra.Command) (*releaseOptions, error) {
 	do, err := gitconfig.Username()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	cmd.Flags().StringVarP(&options.owner, "username", "u", do, "GitHub username")
 
 	if len(options.owner) == 0 {
-		return nil, errors.New("missing GitHub username\n\n" +
+		return errors.New("missing GitHub username\n\n" +
 			"ghbr extracts username from .git/config, so move to the root of your project," +
 			"or set it via `-u` option")
 	}
@@ -90,13 +92,13 @@ func parseFlags(cmd *cobra.Command) (*releaseOptions, error) {
 	dr, err := gitconfig.Repository()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	cmd.Flags().StringVarP(&options.repo, "repository", "r", dr, "GitHub repository")
 
 	if len(options.repo) == 0 {
-		return nil, errors.New("missing GitHub repository\n\n" +
+		return errors.New("missing GitHub repository\n\n" +
 			"ghbr extracts repository from .git/config, so move to the root of your project," +
 			"or set it via `-r` option")
 	}
@@ -104,7 +106,7 @@ func parseFlags(cmd *cobra.Command) (*releaseOptions, error) {
 	// Branch
 	cmd.Flags().StringVarP(&options.branch, "branch", "b", "master", "GitHub branch")
 
-	return &options, nil
+	return nil
 }
 
 func defaultToken() (string, error) {

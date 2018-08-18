@@ -4,7 +4,7 @@ import (
 		"os"
 
 		"github.com/spf13/cobra"
-		"github.com/shuheiktgw/ghbr/hbr"
+	"github.com/shuheiktgw/ghbr/hbr"
 )
 
 const (
@@ -26,23 +26,21 @@ func (cr cmdError) Error() string {
 	return cr.Error()
 }
 
-func NewRootCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "ghbr",
-		Short: "GHBR is a simple CLI tool to create and update your Homebrew formula",
-	}
+var RootCmd = &cobra.Command{
+	Use:   "ghbr",
+	Short: "GHBR is a simple CLI tool to create and update your Homebrew formula",
+}
 
-	cmd.AddCommand(NewVersionCmd())
-	cmd.AddCommand(NewReleaseCmd(hbr.GenerateGHBR))
-	return cmd
+func init() {
+	RootCmd.AddCommand(NewVersionCmd())
+	RootCmd.AddCommand(NewReleaseCmd(hbr.GenerateGHBR))
 }
 
 func Execute() int {
-	cmd := NewRootCmd()
-	cmd.SetOutput(os.Stdout)
-	if err := cmd.Execute(); err != nil {
-		cmd.SetOutput(os.Stderr)
-		cmd.Println(err)
+	RootCmd.SetOutput(os.Stdout)
+	if err := RootCmd.Execute(); err != nil {
+		RootCmd.SetOutput(os.Stderr)
+		RootCmd.Println(err)
 
 		if e, ok := err.(cmdError); ok {
 			return e.exitCode
