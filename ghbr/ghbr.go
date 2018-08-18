@@ -21,11 +21,11 @@ var versionRegex = regexp.MustCompile(`version\s['"]([\w.-]+)['"]`)
 var urlRegex = regexp.MustCompile(`url\s['"]((http|https)://[\w-./?%&=]+)['"]`)
 var shaRegex = regexp.MustCompile(`sha256\s['"]([0-9A-Fa-f]{64})['"]`)
 
-// Generator defines a method to create GHBR
-type Generator func(token, owner, repo string) GHBR
+// Generator defines a method to create GHBRWrapper
+type Generator func(token, owner, repo string) GHBRWrapper
 
-// GHBR abstracts Wrapper's interface
-type GHBR interface {
+// GHBRWrapper abstracts Wrapper's interface
+type GHBRWrapper interface {
 	GetCurrentRelease(repo string) (*LatestRelease)
 	UpdateFormula(app, branch string, release *LatestRelease)
 	Err() error
@@ -33,7 +33,7 @@ type GHBR interface {
 
 // Wrapper wraps Client to avoid ugly error handling
 type Wrapper struct {
-	client Client
+	client GHBRClient
 	err    error
 }
 
@@ -63,6 +63,12 @@ func (w *Wrapper) UpdateFormula(app, branch string, release *LatestRelease) {
 // Err returns the value of the err filed
 func (w *Wrapper) Err() error {
 	return w.err
+}
+
+// GHBRClient abstracts Client's interface
+type GHBRClient interface {
+	GetCurrentRelease(repo string) (*LatestRelease, error)
+	UpdateFormula(app, branch string, release *LatestRelease) error
 }
 
 // Client define functions for Homebrew Formula
