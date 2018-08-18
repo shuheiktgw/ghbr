@@ -13,6 +13,7 @@ import (
 	"github.com/shuheiktgw/ghbr/github"
 	goGithub "github.com/google/go-github/github"
 	"github.com/pkg/errors"
+	"encoding/hex"
 )
 
 const MacRelease = "darwin_amd64"
@@ -274,7 +275,7 @@ func calculateSha256(path string) (string, error) {
 		return "", err
 	}
 
-	return string(sha.Sum(nil)), nil
+	return hex.EncodeToString(sha.Sum(nil)), nil
 }
 
 func decodeContent(rc *goGithub.RepositoryContent) (string, error) {
