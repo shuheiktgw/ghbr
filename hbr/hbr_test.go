@@ -46,7 +46,7 @@ func TestHBRWrapper_GetCurrentRelease(t *testing.T) {
 
 	for _, tc := range cases {
 		mockCtrl := gomock.NewController(t)
-		mockClient := NewMockGHBRClient(mockCtrl)
+		mockClient := NewMockHBRClient(mockCtrl)
 
 		mockClient.EXPECT().GetCurrentRelease("testRepo").Return(&LatestRelease{}, nil).Times(tc.count)
 
@@ -68,7 +68,7 @@ func TestHBRWrapper_CreateFormula(t *testing.T) {
 
 	for _, tc := range cases {
 		mockCtrl := gomock.NewController(t)
-		mockClient := NewMockGHBRClient(mockCtrl)
+		mockClient := NewMockHBRClient(mockCtrl)
 
 		release := &LatestRelease{}
 		mockClient.EXPECT().CreateFormula("testApp", "test", false, release).Return(nil).Times(tc.count)
@@ -91,7 +91,7 @@ func TestHBRWrapper_UpdateFormula(t *testing.T) {
 
 	for _, tc := range cases {
 		mockCtrl := gomock.NewController(t)
-		mockClient := NewMockGHBRClient(mockCtrl)
+		mockClient := NewMockHBRClient(mockCtrl)
 
 		release := &LatestRelease{}
 		mockClient.EXPECT().UpdateFormula("testApp", "master", false, release).Return(nil).Times(tc.count)
@@ -103,7 +103,7 @@ func TestHBRWrapper_UpdateFormula(t *testing.T) {
 	}
 }
 
-func TestHBRClient_GetCurrentRelease_Success(t *testing.T) {
+func TestHBRClient_GetCurrentReleaseSuccess(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
@@ -135,7 +135,7 @@ func TestHBRClient_GetCurrentRelease_Success(t *testing.T) {
 	}
 }
 
-func TestHBRClient_CreateFormula_Fail(t *testing.T) {
+func TestHBRClient_CreateFormulaFail(t *testing.T) {
 	cases := []struct {
 		app, font string
 		release   *LatestRelease
@@ -159,7 +159,7 @@ func TestHBRClient_CreateFormula_Fail(t *testing.T) {
 	}
 }
 
-func TestHBRClient_CreateFormula_Success(t *testing.T) {
+func TestHBRClient_CreateFormulaSuccess(t *testing.T) {
 	// Create mock
 	mockCtrl := gomock.NewController(t)
 	mockGitHub := github.NewMockGitHub(mockCtrl)
@@ -189,7 +189,7 @@ func TestHBRClient_CreateFormula_Success(t *testing.T) {
 	mockCtrl.Finish()
 }
 
-func TestHBRClient_UpdateFormula_Success(t *testing.T) {
+func TestHBRClient_UpdateFormulaSuccess(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
@@ -228,7 +228,7 @@ func TestHBRClient_UpdateFormula_Success(t *testing.T) {
 	}
 }
 
-func TestHBRClient_UpdateFormula_Fail(t *testing.T) {
+func TestHBRClient_UpdateFormulaFail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
@@ -252,7 +252,7 @@ func TestHBRClient_UpdateFormula_Fail(t *testing.T) {
 	}
 }
 
-func TestHBRClient_DownloadFile_Success(t *testing.T) {
+func TestHBRClient_DownloadFileSuccess(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
@@ -268,7 +268,7 @@ func TestHBRClient_DownloadFile_Success(t *testing.T) {
 	}
 }
 
-func TestHBRClient_DownloadFile_Fail(t *testing.T) {
+func TestHBRClient_DownloadFileFail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 

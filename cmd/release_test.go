@@ -46,7 +46,7 @@ func generateMockGHBR(t *testing.T, count int) (hbr.Generator, *gomock.Controlle
 	mockCtrl := gomock.NewController(t)
 
 	return func(token, owner string) hbr.HBRWrapper {
-		mockWrapper := hbr.NewMockGHBRWrapper(mockCtrl)
+		mockWrapper := hbr.NewMockHBRWrapper(mockCtrl)
 
 		release := &hbr.LatestRelease{}
 		mockWrapper.EXPECT().GetCurrentRelease(testRepo).Return(release).Times(count)
