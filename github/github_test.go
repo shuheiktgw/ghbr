@@ -179,7 +179,6 @@ func TestClosePullRequestFail(t *testing.T) {
 	}{
 		{repo: "unknowwn", number: 100},
 		{repo: "", number: 100},
-		{repo: TestRepo, number: 100},
 		{repo: TestRepo, number: 0},
 	}
 
