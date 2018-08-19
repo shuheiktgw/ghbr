@@ -19,6 +19,8 @@ type GitHub interface {
 	ClosePullRequest(repo string, number int) error
 	GetFile(repo, branch, path string) (*goGithub.RepositoryContent, error)
 	UpdateFile(repo, branch, path, sha, message string, content []byte) error
+	CreateRepository(name, description, homepage string, private bool) error
+	DeleteRepository(name string) error
 }
 
 // GitHubClient is a clint to interact with Github API
@@ -261,11 +263,59 @@ func (g *GitHubClient) UpdateFile(repo, branch, path, sha, message string, conte
 	_, res, err := g.Client.Repositories.UpdateFile(context.TODO(), g.Owner, repo, path, opt)
 
 	if err != nil {
-		return errors.Wrap(err, "failed to update file")
+		return errors.Wrapf(err, "failed to update a file on GitHub: repo: %s, branch: %s, path: %s", repo, branch, path)
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return errors.Errorf("update file: invalid http status: %s", res.Status)
+		return errors.Errorf("Update File on GitHub: invalid http status: %s", res.Status)
+	}
+
+	return nil
+}
+
+// CreateRepository creates a new GitHub repository
+func (g *GitHubClient) CreateRepository(name, description, homepage string, private bool) error {
+	if len(name) == 0 {
+		return errors.New("missing Github repository name")
+	}
+
+	if len(description) == 0 {
+		return errors.New("missing Github repository description")
+	}
+
+	opt := &goGithub.Repository{
+		Name:        &name,
+		Description: &description,
+		Homepage:    &homepage,
+		Private:     &private,
+	}
+
+	_, res, err := g.Client.Repositories.Create(context.TODO(), "", opt)
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to create a new GitHub repository: repository name: %s", name)
+	}
+
+	if res.StatusCode != http.StatusCreated {
+		return errors.Errorf("Create GitHub Repository: invalid http status: %s", res.Status)
+	}
+
+	return nil
+}
+
+// DeleteRepository deletes a GitHub repository
+func (g *GitHubClient) DeleteRepository(name string) error {
+	if len(name) == 0 {
+		return errors.New("missing Github repository name")
+	}
+	res, err := g.Client.Repositories.Delete(context.TODO(), g.Owner, name)
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to delete a GitHub repository: repository name: %s", name)
+	}
+
+	if res.StatusCode != http.StatusNoContent {
+		return errors.Errorf("Delete GitHub Repository: invalid http status: %s", res.Status)
 	}
 
 	return nil

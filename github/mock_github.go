@@ -131,3 +131,27 @@ func (m *MockGitHub) UpdateFile(repo, branch, path, sha, message string, content
 func (mr *MockGitHubMockRecorder) UpdateFile(repo, branch, path, sha, message, content interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFile", reflect.TypeOf((*MockGitHub)(nil).UpdateFile), repo, branch, path, sha, message, content)
 }
+
+// CreateRepository mocks base method
+func (m *MockGitHub) CreateRepository(name, description, homepage string, private bool) error {
+	ret := m.ctrl.Call(m, "CreateRepository", name, description, homepage, private)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateRepository indicates an expected call of CreateRepository
+func (mr *MockGitHubMockRecorder) CreateRepository(name, description, homepage, private interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRepository", reflect.TypeOf((*MockGitHub)(nil).CreateRepository), name, description, homepage, private)
+}
+
+// DeleteRepository mocks base method
+func (m *MockGitHub) DeleteRepository(name string) error {
+	ret := m.ctrl.Call(m, "DeleteRepository", name)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteRepository indicates an expected call of DeleteRepository
+func (mr *MockGitHubMockRecorder) DeleteRepository(name interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRepository", reflect.TypeOf((*MockGitHub)(nil).DeleteRepository), name)
+}
