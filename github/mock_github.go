@@ -120,6 +120,19 @@ func (mr *MockGitHubMockRecorder) GetFile(repo, branch, path interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFile", reflect.TypeOf((*MockGitHub)(nil).GetFile), repo, branch, path)
 }
 
+// CreateFile mocks base method
+func (m *MockGitHub) CreateFile(repo, branch, path, message string, content []byte) (*github.RepositoryContentResponse, error) {
+	ret := m.ctrl.Call(m, "CreateFile", repo, branch, path, message, content)
+	ret0, _ := ret[0].(*github.RepositoryContentResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateFile indicates an expected call of CreateFile
+func (mr *MockGitHubMockRecorder) CreateFile(repo, branch, path, message, content interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFile", reflect.TypeOf((*MockGitHub)(nil).CreateFile), repo, branch, path, message, content)
+}
+
 // UpdateFile mocks base method
 func (m *MockGitHub) UpdateFile(repo, branch, path, sha, message string, content []byte) error {
 	ret := m.ctrl.Call(m, "UpdateFile", repo, branch, path, sha, message, content)
@@ -130,6 +143,18 @@ func (m *MockGitHub) UpdateFile(repo, branch, path, sha, message string, content
 // UpdateFile indicates an expected call of UpdateFile
 func (mr *MockGitHubMockRecorder) UpdateFile(repo, branch, path, sha, message, content interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFile", reflect.TypeOf((*MockGitHub)(nil).UpdateFile), repo, branch, path, sha, message, content)
+}
+
+// DeleteFile mocks base method
+func (m *MockGitHub) DeleteFile(repo, branch, path, sha, message string) error {
+	ret := m.ctrl.Call(m, "DeleteFile", repo, branch, path, sha, message)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteFile indicates an expected call of DeleteFile
+func (mr *MockGitHubMockRecorder) DeleteFile(repo, branch, path, sha, message interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFile", reflect.TypeOf((*MockGitHub)(nil).DeleteFile), repo, branch, path, sha, message)
 }
 
 // CreateRepository mocks base method

@@ -292,6 +292,83 @@ func TestGetFileSuccess(t *testing.T) {
 	}
 }
 
+func TestGitHubClient_CreateFileFail(t *testing.T) {
+	cases := []struct {
+		repo, branch, path, message, content string
+	}{
+		{repo: "unknown", branch: "master", path: "main.go", message: "test!", content: "test"},
+		{repo: "", branch: "master", path: "main.go", message: "test!", content: "test"},
+		{repo: TestRepo, branch: "unknown", path: "main.go", message: "test!", content: "test"},
+		{repo: TestRepo, branch: "", path: "main.go", message: "test!", content: "test"},
+		{repo: TestRepo, branch: "master", path: "", message: "test!", content: "test"},
+		{repo: TestRepo, branch: "master", path: "main.go", message: "", content: "test"},
+		{repo: TestRepo, branch: "master", path: "main.go", message: "test!", content: ""},
+	}
+
+	for i, tc := range cases {
+		c := testGitHubClient(t)
+		if _, err := c.CreateFile(tc.repo, tc.branch, tc.path, tc.message, []byte(tc.content)); err == nil {
+			t.Fatalf("#%d CreateFile: error is not supposed to be nil", i)
+		}
+	}
+}
+
+func TestGitHubClient_DeleteFileFail(t *testing.T) {
+	c := testGitHubClient(t)
+	f, err := c.GetFile(TestRepo, "master", "main.go")
+
+	if err != nil {
+		t.Fatalf("GetFile: unexpected error occured: %s", err)
+	}
+
+	cases := []struct {
+		repo, branch, path, sha, message string
+	}{
+		{repo: "unknown", branch: "master", path: "main.go", sha: *f.SHA, message: "test!"},
+		{repo: "", branch: "master", path: "main.go", sha: *f.SHA, message: "test!"},
+		{repo: TestRepo, branch: "unknown", path: "main.go", sha: *f.SHA, message: "test!"},
+		{repo: TestRepo, branch: "", path: "main.go", sha: *f.SHA, message: "test!"},
+		{repo: TestRepo, branch: "master", path: "", sha: *f.SHA, message: "test!"},
+		{repo: TestRepo, branch: "master", path: "main.go", sha: "unknown", message: "test!"},
+		{repo: TestRepo, branch: "master", path: "main.go", sha: "", message: "test!"},
+		{repo: TestRepo, branch: "master", path: "main.go", sha: "unknown", message: "test!"},
+		{repo: TestRepo, branch: "master", path: "main.go", sha: *f.SHA, message: ""},
+	}
+
+	for i, tc := range cases {
+		if err := c.DeleteFile(tc.repo, tc.branch, tc.path, tc.sha, tc.message); err == nil {
+			t.Fatalf("#%d DeleteFile: error is not supposed to be nil", i)
+		}
+	}
+}
+
+func TestGitHubClient_CreateAndDeleteFile(t *testing.T) {
+	c := testGitHubClient(t)
+
+	// Create a test branch
+	branch := "test_create_and_delete_file"
+	if err := c.CreateBranch(TestRepo, "master", branch); err != nil {
+		t.Fatalf("unexpected error occured while creating a test branch: %s", err)
+	}
+
+	defer c.DeleteLatestRef(TestRepo, branch)
+
+	// Create a file
+	rc, err := c.CreateFile(TestRepo, branch, "new_file.go", "This is a new file!", []byte(`fmt.Println("test!")`))
+
+	if err != nil {
+		t.Fatalf("unexpected error occured while creating a file: %s", err)
+	}
+
+	// Be nice to GitHub API
+	time.Sleep(3 * time.Second)
+
+	// Delete a file
+	if err := c.DeleteFile(TestRepo, branch, "new_file.go", *rc.Content.SHA, "This is a new file!"); err != nil {
+		t.Fatalf("unexpected error occured while Deleting a file: %s", err)
+	}
+}
+
 func TestUpdateFileFail(t *testing.T) {
 	c := testGitHubClient(t)
 	f, err := c.GetFile(TestRepo, "master", "main.go")

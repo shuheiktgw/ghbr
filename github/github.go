@@ -18,7 +18,9 @@ type GitHub interface {
 	MergePullRequest(repo string, number int) error
 	ClosePullRequest(repo string, number int) error
 	GetFile(repo, branch, path string) (*goGithub.RepositoryContent, error)
+	CreateFile(repo, branch, path, message string, content []byte) (*goGithub.RepositoryContentResponse, error)
 	UpdateFile(repo, branch, path, sha, message string, content []byte) error
+	DeleteFile(repo, branch, path, sha, message string) error
 	CreateRepository(name, description, homepage string, private bool) error
 	DeleteRepository(name string) error
 }
@@ -236,10 +238,59 @@ func (g *GitHubClient) GetFile(repo, branch, path string) (*goGithub.RepositoryC
 	return file, nil
 }
 
-// UpdateFile updates a file with a given content
+// CreateFile create a file with a given content on GitHub
+func (g *GitHubClient) CreateFile(repo, branch, path, message string, content []byte) (*goGithub.RepositoryContentResponse, error) {
+	if len(repo) == 0 {
+		return nil, errors.New("missing Github repository")
+	}
+
+	if len(branch) == 0 {
+		return nil, errors.New("missing Github branch name")
+	}
+
+	if len(path) == 0 {
+		return nil, errors.New("missing Github file path")
+	}
+
+	if len(message) == 0 {
+		return nil, errors.New("missing Github commit message")
+	}
+
+	if len(content) == 0 {
+		return nil, errors.New("missing Github content")
+	}
+
+	opt := &goGithub.RepositoryContentFileOptions{Message: &message, Content: content, Branch: &branch}
+
+	rc, res, err := g.Client.Repositories.CreateFile(context.TODO(), g.Owner, repo, path, opt)
+
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to crate a file on GitHub: repo: %s, branch: %s, path: %s", repo, branch, path)
+	}
+
+	if res.StatusCode != http.StatusCreated {
+		return nil, errors.Errorf("Create File on GitHub: invalid http status: %s", res.Status)
+	}
+
+	return rc, nil
+}
+
+// UpdateFile updates a file on GitHub with a given content
 func (g *GitHubClient) UpdateFile(repo, branch, path, sha, message string, content []byte) error {
+	if len(repo) == 0 {
+		return errors.New("missing Github repository")
+	}
+
+	if len(branch) == 0 {
+		return errors.New("missing Github branch name")
+	}
+
 	if len(path) == 0 {
 		return errors.New("missing Github file path")
+	}
+
+	if len(sha) == 0 {
+		return errors.New("missing Github file sha")
 	}
 
 	if len(message) == 0 {
@@ -248,14 +299,6 @@ func (g *GitHubClient) UpdateFile(repo, branch, path, sha, message string, conte
 
 	if len(content) == 0 {
 		return errors.New("missing Github content")
-	}
-
-	if len(sha) == 0 {
-		return errors.New("missing Github file sha")
-	}
-
-	if len(branch) == 0 {
-		return errors.New("missing Github branch name")
 	}
 
 	opt := &goGithub.RepositoryContentFileOptions{Message: &message, Content: content, SHA: &sha, Branch: &branch}
@@ -268,6 +311,43 @@ func (g *GitHubClient) UpdateFile(repo, branch, path, sha, message string, conte
 
 	if res.StatusCode != http.StatusOK {
 		return errors.Errorf("Update File on GitHub: invalid http status: %s", res.Status)
+	}
+
+	return nil
+}
+
+// DeleteFile deletes a file on GitHub
+func (g *GitHubClient) DeleteFile(repo, branch, path, sha, message string) error {
+	if len(repo) == 0 {
+		return errors.New("missing Github repository")
+	}
+
+	if len(branch) == 0 {
+		return errors.New("missing Github branch name")
+	}
+
+	if len(path) == 0 {
+		return errors.New("missing Github file path")
+	}
+
+	if len(sha) == 0 {
+		return errors.New("missing Github file sha")
+	}
+
+	if len(message) == 0 {
+		return errors.New("missing Github commit message")
+	}
+
+	opt := &goGithub.RepositoryContentFileOptions{Message: &message, SHA: &sha, Branch: &branch}
+
+	_, res, err := g.Client.Repositories.DeleteFile(context.TODO(), g.Owner, repo, path, opt)
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to delete a file on GitHub: repo: %s, branch: %s, path: %s", repo, branch, path)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return errors.Errorf("Delete File on GitHub: invalid http status: %s", res.Status)
 	}
 
 	return nil
