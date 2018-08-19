@@ -25,11 +25,11 @@ var versionRegex = regexp.MustCompile(`version\s['"]([\w.-]+)['"]`)
 var urlRegex = regexp.MustCompile(`url\s['"]((http|https)://[\w-./?%&=]+)['"]`)
 var shaRegex = regexp.MustCompile(`sha256\s['"]([0-9A-Fa-f]{64})['"]`)
 
-// Generator is a type for method to generate GBHRWrapper
-type Generator func(token, owner string) GHBRWrapper
+// Generator is a type for method to generate HBRWrapper
+type Generator func(token, owner string) HBRWrapper
 
-// Generator defines a method to create GHBRWrapper
-func GenerateGHBR(token, owner string) GHBRWrapper {
+// GenerateHBR defines a method to create HBRWrapper
+func GenerateHBR(token, owner string) HBRWrapper {
 	gitHub, err := github.NewGitHubClient(owner, token)
 
 	if err != nil {
@@ -39,8 +39,8 @@ func GenerateGHBR(token, owner string) GHBRWrapper {
 	return &Wrapper{client: &Client{GitHub: gitHub}, err: nil}
 }
 
-// GHBRWrapper abstracts Wrapper's interface
-type GHBRWrapper interface {
+// HBRWrapper abstracts Wrapper's interface
+type HBRWrapper interface {
 	GetCurrentRelease(repo string) *LatestRelease
 	CreateFormula(app, font string, private bool, release *LatestRelease)
 	UpdateFormula(app, branch string, merge bool, release *LatestRelease)
@@ -49,7 +49,7 @@ type GHBRWrapper interface {
 
 // Wrapper wraps Client to avoid ugly error handling
 type Wrapper struct {
-	client GHBRClient
+	client HBRClient
 	err    error
 }
 
@@ -93,8 +93,8 @@ func (w *Wrapper) Err() error {
 	return w.err
 }
 
-// GHBRClient abstracts Client's interface
-type GHBRClient interface {
+// HBRClient abstracts Client's interface
+type HBRClient interface {
 	GetCurrentRelease(repo string) (*LatestRelease, error)
 	CreateFormula(app, font string, private bool, release *LatestRelease) error
 	UpdateFormula(app, branch string, merge bool, release *LatestRelease) error

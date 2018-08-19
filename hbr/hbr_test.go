@@ -11,7 +11,7 @@ import (
 	"github.com/shuheiktgw/ghbr/github"
 )
 
-func TestGenerateGHBR(t *testing.T) {
+func TestGenerateHBR(t *testing.T) {
 	cases := []struct {
 		token, owner          string
 		clientExist, errExist bool
@@ -23,7 +23,7 @@ func TestGenerateGHBR(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		g := GenerateGHBR(tc.token, tc.owner)
+		g := GenerateHBR(tc.token, tc.owner)
 
 		if tc.errExist && g.Err() == nil {
 			t.Fatalf("#%d Error is not supposed to be nil", i)
@@ -35,7 +35,7 @@ func TestGenerateGHBR(t *testing.T) {
 	}
 }
 
-func TestGHBRWrapper_GetCurrentRelease(t *testing.T) {
+func TestHBRWrapper_GetCurrentRelease(t *testing.T) {
 	cases := []struct {
 		err   error
 		count int
@@ -57,7 +57,7 @@ func TestGHBRWrapper_GetCurrentRelease(t *testing.T) {
 	}
 }
 
-func TestGHBRWrapper_CreateFormula(t *testing.T) {
+func TestHBRWrapper_CreateFormula(t *testing.T) {
 	cases := []struct {
 		err   error
 		count int
@@ -80,7 +80,7 @@ func TestGHBRWrapper_CreateFormula(t *testing.T) {
 	}
 }
 
-func TestGHBRWrapper_UpdateFormula(t *testing.T) {
+func TestHBRWrapper_UpdateFormula(t *testing.T) {
 	cases := []struct {
 		err   error
 		count int
@@ -103,7 +103,7 @@ func TestGHBRWrapper_UpdateFormula(t *testing.T) {
 	}
 }
 
-func TestGHBRClient_GetCurrentRelease_Success(t *testing.T) {
+func TestHBRClient_GetCurrentRelease_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
@@ -122,9 +122,9 @@ func TestGHBRClient_GetCurrentRelease_Success(t *testing.T) {
 	}
 	mockGitHub.EXPECT().GetLatestRelease("testRepo").Return(&mockRelease, nil).Times(1)
 
-	ghbr := Client{GitHub: mockGitHub}
+	hbr := Client{GitHub: mockGitHub}
 
-	lr, err := ghbr.GetCurrentRelease("testRepo")
+	lr, err := hbr.GetCurrentRelease("testRepo")
 
 	if err != nil {
 		t.Fatalf("GetCurrentRelease: unexpected error occured: %s", err)
@@ -135,7 +135,7 @@ func TestGHBRClient_GetCurrentRelease_Success(t *testing.T) {
 	}
 }
 
-func TestGHBRClient_CreateFormula_Fail(t *testing.T) {
+func TestHBRClient_CreateFormula_Fail(t *testing.T) {
 	cases := []struct {
 		app, font string
 		release   *LatestRelease
@@ -149,9 +149,9 @@ func TestGHBRClient_CreateFormula_Fail(t *testing.T) {
 	for i, tc := range cases {
 		mockCtrl := gomock.NewController(t)
 		mockGitHub := github.NewMockGitHub(mockCtrl)
-		ghbr := Client{GitHub: mockGitHub}
+		hbr := Client{GitHub: mockGitHub}
 
-		if err := ghbr.CreateFormula(tc.app, tc.font, false, tc.release); err == nil {
+		if err := hbr.CreateFormula(tc.app, tc.font, false, tc.release); err == nil {
 			t.Fatalf("#%d CreateFormula: error is not supposed to be nil", i)
 		}
 
@@ -159,7 +159,7 @@ func TestGHBRClient_CreateFormula_Fail(t *testing.T) {
 	}
 }
 
-func TestGHBRClient_CreateFormula_Success(t *testing.T) {
+func TestHBRClient_CreateFormula_Success(t *testing.T) {
 	// Create mock
 	mockCtrl := gomock.NewController(t)
 	mockGitHub := github.NewMockGitHub(mockCtrl)
@@ -180,16 +180,16 @@ func TestGHBRClient_CreateFormula_Success(t *testing.T) {
 		gomock.Any(),
 	).Return(nil, nil).Times(2)
 
-	ghbr := Client{GitHub: mockGitHub}
+	hbr := Client{GitHub: mockGitHub}
 
-	if err := ghbr.CreateFormula("gemer", "isometric3", false, &LatestRelease{version: "v0.0.1", url: "test.com", hash: "fdksahuiasfa"}); err != nil {
+	if err := hbr.CreateFormula("gemer", "isometric3", false, &LatestRelease{version: "v0.0.1", url: "test.com", hash: "fdksahuiasfa"}); err != nil {
 		t.Fatalf("CreateFormula: unexpected error occured: %s", err)
 	}
 
 	mockCtrl.Finish()
 }
 
-func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
+func TestHBRClient_UpdateFormula_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
@@ -219,21 +219,21 @@ func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
 	mockGitHub.EXPECT().UpdateFile(repo, newBranch, path, "hash", message, []byte(newContent)).Return(nil).Times(1)
 	mockGitHub.EXPECT().CreatePullRequest(repo, message, newBranch, branch, message).Return(&goGitHub.PullRequest{HTMLURL: goGitHub.String("test.com")}, nil).Times(1)
 
-	ghbr := Client{GitHub: mockGitHub}
+	hbr := Client{GitHub: mockGitHub}
 
-	err := ghbr.UpdateFormula(app, branch, false, &LatestRelease{version: newVersion, url: newURL, hash: newSha})
+	err := hbr.UpdateFormula(app, branch, false, &LatestRelease{version: newVersion, url: newURL, hash: newSha})
 
 	if err != nil {
 		t.Fatalf("UpdateFormula: unexpected error occured: %s", err)
 	}
 }
 
-func TestGHBRClient_UpdateFormula_Fail(t *testing.T) {
+func TestHBRClient_UpdateFormula_Fail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
 	mockGitHub := github.NewMockGitHub(mockCtrl)
-	ghbr := Client{GitHub: mockGitHub}
+	hbr := Client{GitHub: mockGitHub}
 
 	cases := []struct {
 		app, branch string
@@ -246,34 +246,34 @@ func TestGHBRClient_UpdateFormula_Fail(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		if err := ghbr.UpdateFormula(tc.app, tc.branch, false, tc.release); err == nil {
+		if err := hbr.UpdateFormula(tc.app, tc.branch, false, tc.release); err == nil {
 			t.Fatalf("#%d UpdateFormula: error is not supposed to be nil", i)
 		}
 	}
 }
 
-func TestGHBRClient_DownloadFile_Success(t *testing.T) {
+func TestHBRClient_DownloadFile_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
 	mockGitHub := github.NewMockGitHub(mockCtrl)
-	ghbr := Client{GitHub: mockGitHub}
+	hbr := Client{GitHub: mockGitHub}
 
 	url := "https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip"
 
-	_, err := ghbr.downloadFile(url)
+	_, err := hbr.downloadFile(url)
 
 	if err != nil {
 		t.Fatalf("downloadFile: unexpected error occurred: %s", err)
 	}
 }
 
-func TestGHBRClient_DownloadFile_Fail(t *testing.T) {
+func TestHBRClient_DownloadFile_Fail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
 	mockGitHub := github.NewMockGitHub(mockCtrl)
-	ghbr := Client{GitHub: mockGitHub}
+	hbr := Client{GitHub: mockGitHub}
 
 	cases := []struct {
 		path, url string
@@ -282,7 +282,7 @@ func TestGHBRClient_DownloadFile_Fail(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		if _, err := ghbr.downloadFile(tc.url); err == nil {
+		if _, err := hbr.downloadFile(tc.url); err == nil {
 			t.Fatalf("#%d downloadFile: error is not supposed to be nil", i)
 		}
 	}

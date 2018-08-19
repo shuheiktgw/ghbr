@@ -33,7 +33,7 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(NewVersionCmd())
-	RootCmd.AddCommand(NewReleaseCmd(hbr.GenerateGHBR))
+	RootCmd.AddCommand(NewReleaseCmd(hbr.GenerateHBR))
 }
 
 func Execute() int {

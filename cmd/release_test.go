@@ -45,7 +45,7 @@ func TestRelease(t *testing.T) {
 func generateMockGHBR(t *testing.T, count int) (hbr.Generator, *gomock.Controller) {
 	mockCtrl := gomock.NewController(t)
 
-	return func(token, owner string) hbr.GHBRWrapper {
+	return func(token, owner string) hbr.HBRWrapper {
 		mockWrapper := hbr.NewMockGHBRWrapper(mockCtrl)
 
 		release := &hbr.LatestRelease{}
