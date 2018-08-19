@@ -3,7 +3,6 @@ package hbr
 import (
 	"encoding/base64"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -195,11 +194,9 @@ func TestGHBRClient_DownloadFile_Success(t *testing.T) {
 	mockGitHub := mocks.NewMockGitHub(mockCtrl)
 	ghbr := Client{GitHub: mockGitHub}
 
-	path := "gemer_v0.0.1_darwin_amd64.zip"
 	url := "https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip"
 
-	err := ghbr.downloadFile(path, url)
-	defer os.Remove(path)
+	_, err := ghbr.downloadFile(url)
 
 	if err != nil {
 		t.Fatalf("downloadFile: unexpected error occurred: %s", err)
@@ -216,13 +213,11 @@ func TestGHBRClient_DownloadFile_Fail(t *testing.T) {
 	cases := []struct {
 		path, url string
 	}{
-		{path: "", url: ""},
-		{path: "gemer_v0.0.1_darwin_amd64.zip", url: ""},
-		{path: "", url: "https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip"},
+		{url: ""},
 	}
 
 	for i, tc := range cases {
-		if err := ghbr.downloadFile(tc.path, tc.url); err == nil {
+		if _, err := ghbr.downloadFile(tc.url); err == nil {
 			t.Fatalf("#%d downloadFile: error is not supposed to be nil", i)
 		}
 	}

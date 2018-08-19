@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 
@@ -116,17 +115,17 @@ func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 
 	// Download the release asset
 	fmt.Println("===> Downloading Darwin AMD64 release")
-	path := "darwin_amd64.zip"
-	err = g.downloadFile(path, url)
-	defer os.Remove(path)
+	body, err := g.downloadFile(url)
 
 	if err != nil {
 		return nil, err
 	}
 
+	defer body.Close()
+
 	// Calculate hash
 	fmt.Println("===> Calculating a checksum of the release")
-	hash, err := calculateSha256(path)
+	hash, err := calculateSha256(body)
 
 	if err != nil {
 		return nil, err
@@ -241,44 +240,24 @@ func (g *Client) UpdateFormula(app, branch string, merge bool, release *LatestRe
 	return nil
 }
 
-// downloadFile downloads a file from the url and save it to the path
-func (g *Client) downloadFile(path, url string) error {
-	if len(path) == 0 {
-		return errors.New("missing download file path")
-	}
-
+// downloadFile downloads a file from the url and return the content
+func (g *Client) downloadFile(url string) (io.ReadCloser, error) {
 	if len(url) == 0 {
-		return errors.New("missing download url")
+		return nil, errors.New("missing download url")
 	}
-
-	// Create the file
-	out, err := os.Create(path)
-
-	if err != nil {
-		return err
-	}
-
-	defer out.Close()
 
 	// Get the data
 	res, err := http.Get(url)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return errors.Errorf("downloadFile: invalid http status: %s", res.Status)
+		return nil, errors.Errorf("downloadFile: invalid http status: %s", res.Status)
 	}
 
-	defer res.Body.Close()
-
-	// Write the body to the file
-	if _, err = io.Copy(out, res.Body); err != nil {
-		return err
-	}
-
-	return nil
+	return res.Body, nil
 }
 
 func findMacReleaseURL(release *goGithub.RepositoryRelease) (string, error) {
@@ -291,16 +270,10 @@ func findMacReleaseURL(release *goGithub.RepositoryRelease) (string, error) {
 	return "", errors.Errorf("could not find assets named %s", MacRelease)
 }
 
-func calculateSha256(path string) (string, error) {
+func calculateSha256(content io.ReadCloser) (string, error) {
 	sha := sha256.New()
 
-	f, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	if _, err := io.Copy(sha, f); err != nil {
+	if _, err := io.Copy(sha, content); err != nil {
 		return "", err
 	}
 
