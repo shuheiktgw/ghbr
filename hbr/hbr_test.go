@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/google/go-github/github"
+	goGitHub "github.com/google/go-github/github"
 	"github.com/pkg/errors"
-	"github.com/shuheiktgw/ghbr/mocks"
+	"github.com/shuheiktgw/ghbr/github"
 )
 
 func TestGenerateGHBR(t *testing.T) {
@@ -84,17 +84,17 @@ func TestGHBRClient_GetCurrentRelease_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	mockGitHub := mocks.NewMockGitHub(mockCtrl)
-	mockAssets := []github.ReleaseAsset{
+	mockGitHub := github.NewMockGitHub(mockCtrl)
+	mockAssets := []goGitHub.ReleaseAsset{
 		{
-			Name:               github.String("gemer_v0.0.1_darwin_386.zip"),
-			BrowserDownloadURL: github.String("https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_386.zip")},
+			Name:               goGitHub.String("gemer_v0.0.1_darwin_386.zip"),
+			BrowserDownloadURL: goGitHub.String("https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_386.zip")},
 		{
-			Name:               github.String("gemer_v0.0.1_darwin_amd64.zip"),
-			BrowserDownloadURL: github.String("https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip")},
+			Name:               goGitHub.String("gemer_v0.0.1_darwin_amd64.zip"),
+			BrowserDownloadURL: goGitHub.String("https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip")},
 	}
-	mockRelease := github.RepositoryRelease{
-		TagName: github.String("v0.0.1"),
+	mockRelease := goGitHub.RepositoryRelease{
+		TagName: goGitHub.String("v0.0.1"),
 		Assets:  mockAssets,
 	}
 	mockGitHub.EXPECT().GetLatestRelease("testRepo").Return(&mockRelease, nil).Times(1)
@@ -116,7 +116,7 @@ func TestGHBRClient_GetLatestRelease_Fail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	mockGitHub := mocks.NewMockGitHub(mockCtrl)
+	mockGitHub := github.NewMockGitHub(mockCtrl)
 	ghbr := Client{GitHub: mockGitHub}
 
 	if _, err := ghbr.GetCurrentRelease(""); err == nil {
@@ -129,12 +129,12 @@ func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	// Create mocks
-	mockGitHub := mocks.NewMockGitHub(mockCtrl)
+	mockGitHub := github.NewMockGitHub(mockCtrl)
 	mockContent := base64.StdEncoding.EncodeToString([]byte("version 'v0.0.1' url 'https://github.com' sha256 'c59729923f23bdf90505283f92ae6ac81f90d94ec6a9df916b41daa843590f31'"))
-	mockRepositoryContent := github.RepositoryContent{
-		Encoding: github.String("base64"),
-		Content:  github.String(mockContent),
-		SHA:      github.String("hash"),
+	mockRepositoryContent := goGitHub.RepositoryContent{
+		Encoding: goGitHub.String("base64"),
+		Content:  goGitHub.String(mockContent),
+		SHA:      goGitHub.String("hash"),
 	}
 
 	app := "gemer"
@@ -152,7 +152,7 @@ func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
 	mockGitHub.EXPECT().GetFile(repo, branch, path).Return(&mockRepositoryContent, nil).Times(1)
 	mockGitHub.EXPECT().CreateBranch(repo, branch, newBranch).Return(nil).Times(1)
 	mockGitHub.EXPECT().UpdateFile(repo, newBranch, path, "hash", message, []byte(newContent)).Return(nil).Times(1)
-	mockGitHub.EXPECT().CreatePullRequest(repo, message, newBranch, branch, message).Return(&github.PullRequest{HTMLURL: github.String("test.com")}, nil).Times(1)
+	mockGitHub.EXPECT().CreatePullRequest(repo, message, newBranch, branch, message).Return(&goGitHub.PullRequest{HTMLURL: goGitHub.String("test.com")}, nil).Times(1)
 
 	ghbr := Client{GitHub: mockGitHub}
 
@@ -167,7 +167,7 @@ func TestGHBRClient_UpdateFormula_Fail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	mockGitHub := mocks.NewMockGitHub(mockCtrl)
+	mockGitHub := github.NewMockGitHub(mockCtrl)
 	ghbr := Client{GitHub: mockGitHub}
 
 	cases := []struct {
@@ -191,7 +191,7 @@ func TestGHBRClient_DownloadFile_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	mockGitHub := mocks.NewMockGitHub(mockCtrl)
+	mockGitHub := github.NewMockGitHub(mockCtrl)
 	ghbr := Client{GitHub: mockGitHub}
 
 	url := "https://github.com/shuheiktgw/gemer/releases/download/0.0.1/gemer_v0.0.1_darwin_amd64.zip"
@@ -207,7 +207,7 @@ func TestGHBRClient_DownloadFile_Fail(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	mockGitHub := mocks.NewMockGitHub(mockCtrl)
+	mockGitHub := github.NewMockGitHub(mockCtrl)
 	ghbr := Client{GitHub: mockGitHub}
 
 	cases := []struct {
