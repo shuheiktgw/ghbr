@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/common-nighthawk/go-figure"
+  packages = ["."]
+  revision = "18b2b544842cab16f3ff418fb5290d8f2896a069"
+
+[[projects]]
   name = "github.com/golang/mock"
   packages = ["gomock"]
   revision = "c34cdb4725f4c3844d095133c6e40e448b86589b"
@@ -104,6 +110,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "671b04a3817af3e36acb288ae37d61ffc174a11917e648b3d909606b1e6fc16d"
+  inputs-digest = "2712f0e3f54ea2f86beed90d983c3f55298c2fd80064a2305e59779d9842431d"
   solver-name = "gps-cdcl"
   solver-version = 1

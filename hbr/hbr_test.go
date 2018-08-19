@@ -57,6 +57,29 @@ func TestGHBRWrapper_GetCurrentRelease(t *testing.T) {
 	}
 }
 
+func TestGHBRWrapper_CreateFormula(t *testing.T) {
+	cases := []struct {
+		err   error
+		count int
+	}{
+		{err: nil, count: 1},
+		{err: errors.New("error!"), count: 0},
+	}
+
+	for _, tc := range cases {
+		mockCtrl := gomock.NewController(t)
+		mockClient := NewMockGHBRClient(mockCtrl)
+
+		release := &LatestRelease{}
+		mockClient.EXPECT().CreateFormula("testApp", "test", false, release).Return(nil).Times(tc.count)
+
+		wrapper := Wrapper{client: mockClient, err: tc.err}
+		wrapper.CreateFormula("testApp", "test", false, release)
+
+		mockCtrl.Finish()
+	}
+}
+
 func TestGHBRWrapper_UpdateFormula(t *testing.T) {
 	cases := []struct {
 		err   error
@@ -112,16 +135,58 @@ func TestGHBRClient_GetCurrentRelease_Success(t *testing.T) {
 	}
 }
 
-func TestGHBRClient_GetLatestRelease_Fail(t *testing.T) {
-	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
+func TestGHBRClient_CreateFormula_Fail(t *testing.T) {
+	cases := []struct {
+		app, font string
+		release   *LatestRelease
+	}{
+		{app: "", font: "", release: nil},
+		{app: "", font: "test", release: &LatestRelease{}},
+		{app: "gemer", font: "", release: &LatestRelease{}},
+		{app: "gemer", font: "test", release: nil},
+	}
 
+	for i, tc := range cases {
+		mockCtrl := gomock.NewController(t)
+		mockGitHub := github.NewMockGitHub(mockCtrl)
+		ghbr := Client{GitHub: mockGitHub}
+
+		if err := ghbr.CreateFormula(tc.app, tc.font, false, tc.release); err == nil {
+			t.Fatalf("#%d CreateFormula: error is not supposed to be nil", i)
+		}
+
+		mockCtrl.Finish()
+	}
+}
+
+func TestGHBRClient_CreateFormula_Success(t *testing.T) {
+	// Create mock
+	mockCtrl := gomock.NewController(t)
 	mockGitHub := github.NewMockGitHub(mockCtrl)
+
+	// Stub methods
+	mockGitHub.EXPECT().GetOwner().Return("shuheiktgw").Times(1)
+	mockGitHub.EXPECT().CreateRepository(
+		"homebrew-gemer",
+		"Homebrew formula for shuheiktgw/gemer",
+		"https://github.com/shuheiktgw/gemer",
+		false,
+	).Return(nil).Times(1)
+	mockGitHub.EXPECT().CreateFile(
+		"homebrew-gemer",
+		"master",
+		gomock.Any(),
+		gomock.Any(),
+		gomock.Any(),
+	).Return(nil, nil).Times(2)
+
 	ghbr := Client{GitHub: mockGitHub}
 
-	if _, err := ghbr.GetCurrentRelease(""); err == nil {
-		t.Fatalf("GetCurrentRelease: error is not supposed to be nil")
+	if err := ghbr.CreateFormula("gemer", "isometric3", false, &LatestRelease{version: "v0.0.1", url: "test.com", hash: "fdksahuiasfa"}); err != nil {
+		t.Fatalf("CreateFormula: unexpected error occured: %s", err)
 	}
+
+	mockCtrl.Finish()
 }
 
 func TestGHBRClient_UpdateFormula_Success(t *testing.T) {

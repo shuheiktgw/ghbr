@@ -44,6 +44,16 @@ func (mr *MockGHBRWrapperMockRecorder) GetCurrentRelease(repo interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCurrentRelease", reflect.TypeOf((*MockGHBRWrapper)(nil).GetCurrentRelease), repo)
 }
 
+// CreateFormula mocks base method
+func (m *MockGHBRWrapper) CreateFormula(app, font string, private bool, release *LatestRelease) {
+	m.ctrl.Call(m, "CreateFormula", app, font, private, release)
+}
+
+// CreateFormula indicates an expected call of CreateFormula
+func (mr *MockGHBRWrapperMockRecorder) CreateFormula(app, font, private, release interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFormula", reflect.TypeOf((*MockGHBRWrapper)(nil).CreateFormula), app, font, private, release)
+}
+
 // UpdateFormula mocks base method
 func (m *MockGHBRWrapper) UpdateFormula(app, branch string, merge bool, release *LatestRelease) {
 	m.ctrl.Call(m, "UpdateFormula", app, branch, merge, release)
@@ -100,6 +110,18 @@ func (m *MockGHBRClient) GetCurrentRelease(repo string) (*LatestRelease, error) 
 // GetCurrentRelease indicates an expected call of GetCurrentRelease
 func (mr *MockGHBRClientMockRecorder) GetCurrentRelease(repo interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCurrentRelease", reflect.TypeOf((*MockGHBRClient)(nil).GetCurrentRelease), repo)
+}
+
+// CreateFormula mocks base method
+func (m *MockGHBRClient) CreateFormula(app, font string, private bool, release *LatestRelease) error {
+	ret := m.ctrl.Call(m, "CreateFormula", app, font, private, release)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateFormula indicates an expected call of CreateFormula
+func (mr *MockGHBRClientMockRecorder) CreateFormula(app, font, private, release interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFormula", reflect.TypeOf((*MockGHBRClient)(nil).CreateFormula), app, font, private, release)
 }
 
 // UpdateFormula mocks base method
