@@ -421,6 +421,9 @@ func TestGitHubClient_CreateAndDeleteRepository(t *testing.T) {
 		t.Fatalf("unexpected error occured while creating a GitHub repository: %s", err)
 	}
 
+	// Be nice to GitHub API
+	time.Sleep(3 * time.Second)
+
 	// Delete Repo
 	err = c.DeleteRepository(repo)
 
