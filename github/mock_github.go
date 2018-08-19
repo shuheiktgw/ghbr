@@ -33,6 +33,18 @@ func (m *MockGitHub) EXPECT() *MockGitHubMockRecorder {
 	return m.recorder
 }
 
+// GetOwner mocks base method
+func (m *MockGitHub) GetOwner() string {
+	ret := m.ctrl.Call(m, "GetOwner")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetOwner indicates an expected call of GetOwner
+func (mr *MockGitHubMockRecorder) GetOwner() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOwner", reflect.TypeOf((*MockGitHub)(nil).GetOwner))
+}
+
 // GetLatestRelease mocks base method
 func (m *MockGitHub) GetLatestRelease(repo string) (*github.RepositoryRelease, error) {
 	ret := m.ctrl.Call(m, "GetLatestRelease", repo)

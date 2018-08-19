@@ -11,6 +11,7 @@ import (
 
 // GitHub defines functions to interact with GitHub API
 type GitHub interface {
+	GetOwner() string
 	GetLatestRelease(repo string) (*goGithub.RepositoryRelease, error)
 	CreateBranch(repo, origin, new string) error
 	DeleteLatestRef(repo, branch string) error
@@ -52,6 +53,11 @@ func NewGitHubClient(owner, token string) (GitHub, error) {
 		Owner:  owner,
 		Client: client,
 	}, nil
+}
+
+// GetOwner returns the repository owner name
+func (g *GitHubClient) GetOwner() string {
+	return g.Owner
 }
 
 // GetCurrentRelease returns the latest release of the given Repository
