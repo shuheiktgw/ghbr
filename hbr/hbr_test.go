@@ -72,10 +72,10 @@ func TestGHBRWrapper_UpdateFormula(t *testing.T) {
 		mockClient := NewMockGHBRClient(mockCtrl)
 
 		release := &LatestRelease{}
-		mockClient.EXPECT().UpdateFormula("testApp", "master", release).Return(nil).Times(tc.count)
+		mockClient.EXPECT().UpdateFormula("testApp", "master", false, release).Return(nil).Times(tc.count)
 
 		wrapper := Wrapper{client: mockClient, err: tc.err}
-		wrapper.UpdateFormula("testApp", "master", release)
+		wrapper.UpdateFormula("testApp", "master", false, release)
 
 		mockCtrl.Finish()
 	}
@@ -157,7 +157,7 @@ func TestGHBRClient_UpdateFormula_Success(t *testing.T) {
 
 	ghbr := Client{GitHub: mockGitHub}
 
-	err := ghbr.UpdateFormula(app, branch, &LatestRelease{version: newVersion, url: newURL, hash: newSha})
+	err := ghbr.UpdateFormula(app, branch, false, &LatestRelease{version: newVersion, url: newURL, hash: newSha})
 
 	if err != nil {
 		t.Fatalf("UpdateFormula: unexpected error occured: %s", err)
@@ -182,7 +182,7 @@ func TestGHBRClient_UpdateFormula_Fail(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		if err := ghbr.UpdateFormula(tc.app, tc.branch, tc.release); err == nil {
+		if err := ghbr.UpdateFormula(tc.app, tc.branch, false, tc.release); err == nil {
 			t.Fatalf("#%d UpdateFormula: error is not supposed to be nil", i)
 		}
 	}

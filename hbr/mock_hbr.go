@@ -5,9 +5,8 @@
 package hbr
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockGHBRWrapper is a mock of GHBRWrapper interface
@@ -46,13 +45,13 @@ func (mr *MockGHBRWrapperMockRecorder) GetCurrentRelease(repo interface{}) *gomo
 }
 
 // UpdateFormula mocks base method
-func (m *MockGHBRWrapper) UpdateFormula(app, branch string, release *LatestRelease) {
-	m.ctrl.Call(m, "UpdateFormula", app, branch, release)
+func (m *MockGHBRWrapper) UpdateFormula(app, branch string, merge bool, release *LatestRelease) {
+	m.ctrl.Call(m, "UpdateFormula", app, branch, merge, release)
 }
 
 // UpdateFormula indicates an expected call of UpdateFormula
-func (mr *MockGHBRWrapperMockRecorder) UpdateFormula(app, branch, release interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFormula", reflect.TypeOf((*MockGHBRWrapper)(nil).UpdateFormula), app, branch, release)
+func (mr *MockGHBRWrapperMockRecorder) UpdateFormula(app, branch, merge, release interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFormula", reflect.TypeOf((*MockGHBRWrapper)(nil).UpdateFormula), app, branch, merge, release)
 }
 
 // Err mocks base method
@@ -104,13 +103,13 @@ func (mr *MockGHBRClientMockRecorder) GetCurrentRelease(repo interface{}) *gomoc
 }
 
 // UpdateFormula mocks base method
-func (m *MockGHBRClient) UpdateFormula(app, branch string, release *LatestRelease) error {
-	ret := m.ctrl.Call(m, "UpdateFormula", app, branch, release)
+func (m *MockGHBRClient) UpdateFormula(app, branch string, merge bool, release *LatestRelease) error {
+	ret := m.ctrl.Call(m, "UpdateFormula", app, branch, merge, release)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateFormula indicates an expected call of UpdateFormula
-func (mr *MockGHBRClientMockRecorder) UpdateFormula(app, branch, release interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFormula", reflect.TypeOf((*MockGHBRClient)(nil).UpdateFormula), app, branch, release)
+func (mr *MockGHBRClientMockRecorder) UpdateFormula(app, branch, merge, release interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFormula", reflect.TypeOf((*MockGHBRClient)(nil).UpdateFormula), app, branch, merge, release)
 }

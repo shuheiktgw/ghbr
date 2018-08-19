@@ -50,7 +50,7 @@ func generateMockGHBR(t *testing.T, count int) (hbr.Generator, *gomock.Controlle
 
 		release := &hbr.LatestRelease{}
 		mockWrapper.EXPECT().GetCurrentRelease(testRepo).Return(release).Times(count)
-		mockWrapper.EXPECT().UpdateFormula(testRepo, testBranch, release).Times(count)
+		mockWrapper.EXPECT().UpdateFormula(testRepo, testBranch, false, release).Times(count)
 		mockWrapper.EXPECT().Err().Return(nil).Times(count)
 
 		return mockWrapper

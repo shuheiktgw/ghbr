@@ -12,6 +12,7 @@ import (
 
 type releaseOptions struct {
 	token, owner, repo, branch string
+	merge                      bool
 }
 
 var options releaseOptions
@@ -48,7 +49,7 @@ func setPreRunE(cmd *cobra.Command) {
 func runRelease(generator hbr.Generator) error {
 	g := generator(options.token, options.owner)
 	lr := g.GetCurrentRelease(options.repo)
-	g.UpdateFormula(options.repo, options.branch, lr)
+	g.UpdateFormula(options.repo, options.branch, options.merge, lr)
 
 	if err := g.Err(); err != nil {
 		return err
@@ -104,6 +105,9 @@ func parseFlags(cmd *cobra.Command) error {
 
 	// Branch
 	cmd.Flags().StringVarP(&options.branch, "branch", "b", "master", "GitHub branch")
+
+	// Merge
+	cmd.Flags().BoolVarP(&options.merge, "merge", "m", false, "Merge a Pull Request or not")
 
 	return nil
 }

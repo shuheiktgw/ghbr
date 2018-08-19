@@ -39,7 +39,7 @@ func GenerateGHBR(token, owner string) GHBRWrapper {
 // GHBRWrapper abstracts Wrapper's interface
 type GHBRWrapper interface {
 	GetCurrentRelease(repo string) *LatestRelease
-	UpdateFormula(app, branch string, release *LatestRelease)
+	UpdateFormula(app, branch string, merge bool, release *LatestRelease)
 	Err() error
 }
 
@@ -63,12 +63,12 @@ func (w *Wrapper) GetCurrentRelease(repo string) *LatestRelease {
 }
 
 // UpdateFormula wraps client's UpdateFormula method
-func (w *Wrapper) UpdateFormula(app, branch string, release *LatestRelease) {
+func (w *Wrapper) UpdateFormula(app, branch string, merge bool, release *LatestRelease) {
 	if w.err != nil {
 		return
 	}
 
-	w.err = w.client.UpdateFormula(app, branch, release)
+	w.err = w.client.UpdateFormula(app, branch, merge, release)
 
 	return
 }
@@ -81,7 +81,7 @@ func (w *Wrapper) Err() error {
 // GHBRClient abstracts Client's interface
 type GHBRClient interface {
 	GetCurrentRelease(repo string) (*LatestRelease, error)
-	UpdateFormula(app, branch string, release *LatestRelease) error
+	UpdateFormula(app, branch string, merge bool, release *LatestRelease) error
 }
 
 // Client define functions for Homebrew Formula
@@ -136,7 +136,7 @@ func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 }
 
 // UpdateFormula updates the formula file to point to the latest release
-func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error {
+func (g *Client) UpdateFormula(app, branch string, merge bool, release *LatestRelease) error {
 	if len(app) == 0 {
 		return errors.New("missing application name")
 	}
@@ -205,21 +205,40 @@ func (g *Client) UpdateFormula(app, branch string, release *LatestRelease) error
 	}
 
 	// Create a PR from the feature branch to its origin
-	fmt.Printf("===> Creating a Pull Request\n\n")
+	fmt.Println("===> Creating a Pull Request")
 	pr, err := g.GitHub.CreatePullRequest(repo, message, newBranch, branch, message)
 
 	if err != nil {
-		// Delete branch if the create branch fails
+		// Delete the branch if PR creation fails
 		g.GitHub.DeleteLatestRef(repo, newBranch)
 
 		return err
 	}
 
+	// Merge the PR
+	if merge {
+		fmt.Println("===> Merging the Pull Request")
+
+		if err := g.GitHub.MergePullRequest(repo, *pr.Number); err != nil {
+			// Delete the branch and the PR if the merge fails]
+			g.GitHub.ClosePullRequest(repo, *pr.Number)
+			g.GitHub.DeleteLatestRef(repo, newBranch)
+
+			return err
+		}
+
+		fmt.Printf("\n\n")
+		fmt.Printf("Yay! Now your formula is up-to-date!\n\n")
+
+		return nil
+	}
+
+	fmt.Printf("\n\n")
 	fmt.Printf("Yay! Now your formula is ready to update!\n\n")
 	fmt.Printf("Remaining tasks are below:\n")
 	fmt.Printf("Access %s and merge the Pull Request\n\n", *pr.HTMLURL)
-	return nil
 
+	return nil
 }
 
 // downloadFile downloads a file from the url and save it to the path
