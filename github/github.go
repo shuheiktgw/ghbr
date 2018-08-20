@@ -22,7 +22,7 @@ type GitHub interface {
 	CreateFile(repo, branch, path, message string, content []byte) (*goGithub.RepositoryContentResponse, error)
 	UpdateFile(repo, branch, path, sha, message string, content []byte) error
 	DeleteFile(repo, branch, path, sha, message string) error
-	CreateRepository(name, description, homepage string, private bool) error
+	CreateRepository(name, description, homepage string, private bool) (*goGithub.Repository, error)
 	DeleteRepository(name string) error
 }
 
@@ -360,13 +360,13 @@ func (g *GitHubClient) DeleteFile(repo, branch, path, sha, message string) error
 }
 
 // CreateRepository creates a new GitHub repository
-func (g *GitHubClient) CreateRepository(name, description, homepage string, private bool) error {
+func (g *GitHubClient) CreateRepository(name, description, homepage string, private bool) (*goGithub.Repository, error) {
 	if len(name) == 0 {
-		return errors.New("missing Github repository name")
+		return nil, errors.New("missing Github repository name")
 	}
 
 	if len(description) == 0 {
-		return errors.New("missing Github repository description")
+		return nil, errors.New("missing Github repository description")
 	}
 
 	opt := &goGithub.Repository{
@@ -376,17 +376,17 @@ func (g *GitHubClient) CreateRepository(name, description, homepage string, priv
 		Private:     &private,
 	}
 
-	_, res, err := g.Client.Repositories.Create(context.TODO(), "", opt)
+	repo, res, err := g.Client.Repositories.Create(context.TODO(), "", opt)
 
 	if err != nil {
-		return errors.Wrapf(err, "failed to create a new GitHub repository: repository name: %s", name)
+		return nil, errors.Wrapf(err, "failed to create a new GitHub repository: repository name: %s", name)
 	}
 
 	if res.StatusCode != http.StatusCreated {
-		return errors.Errorf("Create GitHub Repository: invalid http status: %s", res.Status)
+		return nil, errors.Errorf("Create GitHub Repository: invalid http status: %s", res.Status)
 	}
 
-	return nil
+	return repo, nil
 }
 
 // DeleteRepository deletes a GitHub repository

@@ -171,7 +171,7 @@ func TestHBRClient_CreateFormulaSuccess(t *testing.T) {
 		"Homebrew formula for shuheiktgw/gemer",
 		"https://github.com/shuheiktgw/gemer",
 		false,
-	).Return(nil).Times(1)
+	).Return(&goGitHub.Repository{HTMLURL: goGitHub.String("test.com")}, nil).Times(1)
 	mockGitHub.EXPECT().CreateFile(
 		"homebrew-gemer",
 		"master",

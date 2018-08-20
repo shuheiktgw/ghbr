@@ -170,10 +170,11 @@ func (mr *MockGitHubMockRecorder) DeleteFile(repo, branch, path, sha, message in
 }
 
 // CreateRepository mocks base method
-func (m *MockGitHub) CreateRepository(name, description, homepage string, private bool) error {
+func (m *MockGitHub) CreateRepository(name, description, homepage string, private bool) (*github.Repository, error) {
 	ret := m.ctrl.Call(m, "CreateRepository", name, description, homepage, private)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*github.Repository)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateRepository indicates an expected call of CreateRepository

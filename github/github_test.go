@@ -464,7 +464,7 @@ func TestGitHubClient_CreateRepositoryFail(t *testing.T) {
 	for i, tc := range cases {
 		c := testGitHubClient(t)
 
-		if err := c.CreateRepository(tc.name, tc.desc, "", false); err == nil {
+		if _, err := c.CreateRepository(tc.name, tc.desc, "", false); err == nil {
 			t.Fatalf("#%d CreateRepository: error is not supposed to be nil", i)
 		}
 	}
@@ -492,7 +492,7 @@ func TestGitHubClient_CreateAndDeleteRepository(t *testing.T) {
 	repo := "test_create_repo"
 
 	// Create Repo
-	err := c.CreateRepository(repo, "This is a test!", "", false)
+	_, err := c.CreateRepository(repo, "This is a test!", "", false)
 
 	if err != nil {
 		t.Fatalf("unexpected error occured while creating a GitHub repository: %s", err)

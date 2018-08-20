@@ -117,7 +117,7 @@ func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 	}
 
 	// Get latest release of the repository
-	fmt.Println("===> Getting the latest release")
+	fmt.Println("[ghbr] ===> Getting the latest release")
 	release, err := g.GitHub.GetLatestRelease(repo)
 
 	if err != nil {
@@ -131,7 +131,7 @@ func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 	url, err := findMacReleaseURL(release)
 
 	// Download the release asset
-	fmt.Println("===> Downloading Darwin AMD64 release")
+	fmt.Println("[ghbr] ===> Downloading Darwin AMD64 release")
 	body, err := g.downloadFile(url)
 
 	if err != nil {
@@ -141,7 +141,7 @@ func (g *Client) GetCurrentRelease(repo string) (*LatestRelease, error) {
 	defer body.Close()
 
 	// Calculate hash
-	fmt.Println("===> Calculating a checksum of the release")
+	fmt.Println("[ghbr] ===> Calculating a checksum of the release")
 	hash, err := calculateSha256(body)
 
 	if err != nil {
@@ -168,7 +168,8 @@ func (g *Client) CreateFormula(app, font string, private bool, release *LatestRe
 	formulaRepoName := fmt.Sprintf("homebrew-%s", app)
 	originalRepo := fmt.Sprintf("%s/%s", g.GitHub.GetOwner(), app)
 
-	err := g.GitHub.CreateRepository(
+	fmt.Println("[ghbr] ===> Creating a repository")
+	repo, err := g.GitHub.CreateRepository(
 		formulaRepoName,
 		fmt.Sprintf("Homebrew formula for %s", originalRepo),
 		fmt.Sprintf("https://github.com/%s", originalRepo),
@@ -180,14 +181,20 @@ func (g *Client) CreateFormula(app, font string, private bool, release *LatestRe
 	}
 
 	// Create README.md
+	fmt.Println("[ghbr] ===> Adding README.md to the repository")
 	if err := g.createReadme(formulaRepoName, originalRepo); err != nil {
 		return err
 	}
 
 	// Create Formula
+	fmt.Printf("[ghbr] ===> Adding %s.rb to the repository\n", app)
 	if err := g.createFormula(app, formulaRepoName, originalRepo, font, release); err != nil {
 		return err
 	}
+
+	fmt.Printf("\n\n")
+	fmt.Printf("Yay! Your Homebrew formula repository is succesfully created!\n")
+	fmt.Printf("Access %s and see what we achieved.\n\n", *repo.HTMLURL)
 
 	return nil
 }
@@ -210,7 +217,7 @@ func (g *Client) UpdateFormula(app, branch string, merge bool, release *LatestRe
 	path := fmt.Sprintf("%s.rb", app)
 
 	// Get the formula file
-	fmt.Println("===> Getting the current formula file")
+	fmt.Println("[ghbr] ===> Getting the current formula file")
 	rc, err := g.GitHub.GetFile(repo, branch, path)
 
 	if err != nil {
@@ -232,7 +239,7 @@ func (g *Client) UpdateFormula(app, branch string, merge bool, release *LatestRe
 	}
 
 	// Create a new feature branch
-	fmt.Println("===> Creating a new branch")
+	fmt.Println("[ghbr] ===> Creating a new branch")
 	newBranch := fmt.Sprintf("bumps_up_to_%s", release.version)
 
 	err = g.GitHub.CreateBranch(repo, branch, newBranch)
@@ -242,7 +249,7 @@ func (g *Client) UpdateFormula(app, branch string, merge bool, release *LatestRe
 	}
 
 	// Update formula file on the feature branch
-	fmt.Println("===> Updating the formula file")
+	fmt.Println("[ghbr] ===> Updating the formula file")
 	message := fmt.Sprintf("Bumps up to %s", release.version)
 
 	err = g.GitHub.UpdateFile(
@@ -262,7 +269,7 @@ func (g *Client) UpdateFormula(app, branch string, merge bool, release *LatestRe
 	}
 
 	// Create a PR from the feature branch to its origin
-	fmt.Println("===> Creating a Pull Request")
+	fmt.Println("[ghbr] ===> Creating a Pull Request")
 	pr, err := g.GitHub.CreatePullRequest(repo, message, newBranch, branch, message)
 
 	if err != nil {
@@ -274,7 +281,7 @@ func (g *Client) UpdateFormula(app, branch string, merge bool, release *LatestRe
 
 	// Merge the PR
 	if merge {
-		fmt.Println("===> Merging the Pull Request")
+		fmt.Println("[ghbr] ===> Merging the Pull Request")
 
 		if err := g.GitHub.MergePullRequest(repo, *pr.Number); err != nil {
 			// Delete the branch and the PR if the merge fails]
