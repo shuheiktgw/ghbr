@@ -1,13 +1,8 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/pkg/errors"
 	"github.com/shuheiktgw/ghbr/hbr"
 	"github.com/spf13/cobra"
-	"github.com/tcnksm/go-gitconfig"
 )
 
 type releaseOptions struct {
@@ -15,7 +10,7 @@ type releaseOptions struct {
 	merge                      bool
 }
 
-var options releaseOptions
+var releaseOpts releaseOptions
 
 func NewReleaseCmd(generator hbr.Generator) *cobra.Command {
 	cmd := &cobra.Command{
@@ -29,13 +24,14 @@ func NewReleaseCmd(generator hbr.Generator) *cobra.Command {
 		SilenceUsage:  true,
 	}
 
-	setPreRunE(cmd)
+	setReleasePreRunE(cmd)
 
 	return cmd
 }
 
-func setPreRunE(cmd *cobra.Command) {
-	err := parseFlags(cmd)
+func setReleasePreRunE(cmd *cobra.Command) {
+	setReleaseFlags(cmd)
+	err := validateReleaseFlags()
 
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if err != nil {
@@ -47,9 +43,9 @@ func setPreRunE(cmd *cobra.Command) {
 }
 
 func runRelease(generator hbr.Generator) error {
-	g := generator(options.token, options.owner)
-	lr := g.GetCurrentRelease(options.repo)
-	g.UpdateFormula(options.repo, options.branch, options.merge, lr)
+	g := generator(releaseOpts.token, releaseOpts.owner)
+	lr := g.GetCurrentRelease(releaseOpts.repo)
+	g.UpdateFormula(releaseOpts.repo, releaseOpts.branch, releaseOpts.merge, lr)
 
 	if err := g.Err(); err != nil {
 		return err
@@ -58,68 +54,38 @@ func runRelease(generator hbr.Generator) error {
 	return nil
 }
 
-func parseFlags(cmd *cobra.Command) error {
+func setReleaseFlags(cmd *cobra.Command) {
+	// Set token flag
+	setTokenFlag(cmd, &releaseOpts.token)
+
+	// Set owner flag
+	setOwnerFlag(cmd, &releaseOpts.owner)
+
+	// Set repository flag
+	setRepositoryFlag(cmd, &releaseOpts.repo)
+
+	// Set branch flag
+	cmd.Flags().StringVarP(&releaseOpts.branch, "branch", "b", "master", "GitHub branch")
+
+	// Set merge flag
+	cmd.Flags().BoolVarP(&releaseOpts.merge, "merge", "m", false, "Merge a Pull Request or not")
+}
+
+func validateReleaseFlags() error {
 	// Token
-	dt, err := defaultToken()
-
-	if err != nil {
+	if err := validateToken(releaseOpts.token); err != nil {
 		return err
-	}
-
-	cmd.Flags().StringVarP(&options.token, "token", "t", dt, "GitHub personal access token")
-
-	if len(options.token) == 0 {
-		return fmt.Errorf("missing GitHub personal access token\n\n"+
-			"Please set it via `-t` option, %s environment variable or github.token in .gitconfig\n", EnvGitHubToken)
 	}
 
 	// Owner
-	do, err := gitconfig.Username()
-
-	if err != nil {
+	if err := validateOwner(releaseOpts.owner); err != nil {
 		return err
-	}
-
-	cmd.Flags().StringVarP(&options.owner, "username", "u", do, "GitHub username")
-
-	if len(options.owner) == 0 {
-		return errors.New("missing GitHub username\n\n" +
-			"ghbr extracts username from .git/config, so move to the root of your project," +
-			"or set it via `-u` option")
 	}
 
 	// Repository
-	dr, err := gitconfig.Repository()
-
-	if err != nil {
+	if err := validateRepository(releaseOpts.repo); err != nil {
 		return err
 	}
 
-	cmd.Flags().StringVarP(&options.repo, "repository", "r", dr, "GitHub repository")
-
-	if len(options.repo) == 0 {
-		return errors.New("missing GitHub repository\n\n" +
-			"ghbr extracts repository from .git/config, so move to the root of your project," +
-			"or set it via `-r` option")
-	}
-
-	// Branch
-	cmd.Flags().StringVarP(&options.branch, "branch", "b", "master", "GitHub branch")
-
-	// Merge
-	cmd.Flags().BoolVarP(&options.merge, "merge", "m", false, "Merge a Pull Request or not")
-
 	return nil
-}
-
-func defaultToken() (string, error) {
-	// First search for GITHUB_TOKEN environment variable
-	t := os.Getenv(EnvGitHubToken)
-
-	// Next search for github.token in .gitconfig
-	if len(t) == 0 {
-		return gitconfig.GithubToken()
-	}
-
-	return t, nil
 }

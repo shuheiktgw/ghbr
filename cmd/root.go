@@ -23,7 +23,7 @@ type cmdError struct {
 }
 
 func (cr cmdError) Error() string {
-	return cr.Error()
+	return cr.error.Error()
 }
 
 var RootCmd = &cobra.Command{
@@ -34,6 +34,7 @@ var RootCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(NewVersionCmd())
 	RootCmd.AddCommand(NewReleaseCmd(hbr.GenerateHBR))
+	RootCmd.AddCommand(NewCreateCmd(hbr.GenerateHBR))
 }
 
 func Execute() int {

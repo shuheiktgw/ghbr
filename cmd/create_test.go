@@ -9,25 +9,20 @@ import (
 	"github.com/shuheiktgw/ghbr/hbr"
 )
 
-const (
-	testRepo   = "testRepo"
-	testBranch = "master"
-)
-
-func TestRelease(t *testing.T) {
+func TestCreate(t *testing.T) {
 	cases := []struct {
 		arg string
 
 		expectedGhbrCount    int
 		expectedErrorMessage string
 	}{
-		{arg: fmt.Sprintf("ghbr release -t test -o TestUser -r %s", testRepo), expectedGhbrCount: 1, expectedErrorMessage: ""},
-		{arg: fmt.Sprintf("ghbr release -t test -r %s", testRepo), expectedGhbrCount: 1, expectedErrorMessage: ""},
+		{arg: fmt.Sprintf("ghbr create -t test -o TestUser -r %s", testRepo), expectedGhbrCount: 1, expectedErrorMessage: ""},
+		{arg: fmt.Sprintf("ghbr create -t test -r %s", testRepo), expectedGhbrCount: 1, expectedErrorMessage: ""},
 	}
 
 	for i, tc := range cases {
-		generator, ctl := generateMockGHBR(t, tc.expectedGhbrCount)
-		cmd := NewReleaseCmd(generator)
+		generator, ctl := generateCreateMockGHBR(t, tc.expectedGhbrCount)
+		cmd := NewCreateCmd(generator)
 
 		args := strings.Split(tc.arg, " ")
 		cmd.SetArgs(args[1:])
@@ -42,7 +37,7 @@ func TestRelease(t *testing.T) {
 	}
 }
 
-func generateMockGHBR(t *testing.T, count int) (hbr.Generator, *gomock.Controller) {
+func generateCreateMockGHBR(t *testing.T, count int) (hbr.Generator, *gomock.Controller) {
 	mockCtrl := gomock.NewController(t)
 
 	return func(token, owner string) hbr.HBRWrapper {
@@ -50,7 +45,7 @@ func generateMockGHBR(t *testing.T, count int) (hbr.Generator, *gomock.Controlle
 
 		release := &hbr.LatestRelease{}
 		mockWrapper.EXPECT().GetCurrentRelease(testRepo).Return(release).Times(count)
-		mockWrapper.EXPECT().UpdateFormula(testRepo, testBranch, false, release).Times(count)
+		mockWrapper.EXPECT().CreateFormula(testRepo, "isometric3", false, release).Times(count)
 		mockWrapper.EXPECT().Err().Return(nil).Times(count)
 
 		return mockWrapper
