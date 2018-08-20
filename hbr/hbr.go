@@ -347,7 +347,8 @@ class %s < Formula
   def caveats
     <<-'EOF'
 %s
-    EOF
+EOF
+  end
 end
 
 `, strings.Title(app), originalRepo, release.version, release.url, release.hash, app, caveats.String())
