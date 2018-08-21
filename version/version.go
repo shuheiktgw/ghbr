@@ -9,7 +9,7 @@ import (
 )
 
 // The current version of ghbr
-const Version = "0.0.3"
+const Version = "0.0.4"
 
 // The owner of ghbr
 const Owner = "shuheiktgw"
