@@ -303,6 +303,12 @@ func (g *Client) UpdateFormula(app, branch string, force, merge bool, release *L
 			return err
 		}
 
+		fmt.Println("[ghbr] ===> Deleting the branch")
+
+		if err := g.GitHub.DeleteLatestRef(repo, newBranch); err != nil {
+			return err
+		}
+
 		fmt.Printf("\n\n")
 		fmt.Printf("Yay! Now your formula is up-to-date!\n\n")
 
