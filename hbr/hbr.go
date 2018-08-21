@@ -43,7 +43,7 @@ func GenerateHBR(token, owner string) HBRWrapper {
 type HBRWrapper interface {
 	GetCurrentRelease(repo string) *LatestRelease
 	CreateFormula(app, font string, private bool, release *LatestRelease)
-	UpdateFormula(app, branch string, merge bool, release *LatestRelease)
+	UpdateFormula(app, branch string, force, merge bool, release *LatestRelease)
 	Err() error
 }
 
@@ -78,12 +78,12 @@ func (w *Wrapper) CreateFormula(app, font string, private bool, release *LatestR
 }
 
 // UpdateFormula wraps client's UpdateFormula method
-func (w *Wrapper) UpdateFormula(app, branch string, merge bool, release *LatestRelease) {
+func (w *Wrapper) UpdateFormula(app, branch string, force, merge bool, release *LatestRelease) {
 	if w.err != nil {
 		return
 	}
 
-	w.err = w.client.UpdateFormula(app, branch, merge, release)
+	w.err = w.client.UpdateFormula(app, branch, force, merge, release)
 
 	return
 }
@@ -97,7 +97,7 @@ func (w *Wrapper) Err() error {
 type HBRClient interface {
 	GetCurrentRelease(repo string) (*LatestRelease, error)
 	CreateFormula(app, font string, private bool, release *LatestRelease) error
-	UpdateFormula(app, branch string, merge bool, release *LatestRelease) error
+	UpdateFormula(app, branch string, force, merge bool, release *LatestRelease) error
 }
 
 // Client define functions for Homebrew Formula
@@ -200,7 +200,7 @@ func (g *Client) CreateFormula(app, font string, private bool, release *LatestRe
 }
 
 // UpdateFormula updates the formula file to point to the latest release
-func (g *Client) UpdateFormula(app, branch string, merge bool, release *LatestRelease) error {
+func (g *Client) UpdateFormula(app, branch string, force, merge bool, release *LatestRelease) error {
 	if len(app) == 0 {
 		return errors.New("missing application name")
 	}
@@ -225,14 +225,26 @@ func (g *Client) UpdateFormula(app, branch string, merge bool, release *LatestRe
 	}
 
 	// Decode the formula file
-	oldFormula, err := decodeContent(rc)
+	currentFormula, err := decodeContent(rc)
 
 	if err != nil {
 		return err
 	}
 
+	// Check current version
+	upToDate, err := checkVersionLatest(currentFormula, release)
+
+	if upToDate && !force {
+		fmt.Printf("\n\n")
+		fmt.Printf("GHBR aborted!\n\n")
+
+		fmt.Printf("The current formula version(%s) is alredy up-to-date.\n", release.version)
+		fmt.Printf("If you want to replace the current formula, run `ghbr release` with `-f` option.\n\n")
+		return nil
+	}
+
 	// Edit the formula file
-	newFormula, err := bumpsUpFormula(oldFormula, release)
+	newFormula, err := bumpsUpFormula(currentFormula, release)
 
 	if err != nil {
 		return err
@@ -416,6 +428,16 @@ func decodeContent(rc *goGithub.RepositoryContent) (string, error) {
 	}
 
 	return string(decoded), nil
+}
+
+func checkVersionLatest(content string, release *LatestRelease) (bool, error) {
+	ms := versionRegex.FindStringSubmatch(content)
+
+	if ms == nil {
+		return false, errors.New("could not find version in a formula file")
+	}
+
+	return ms[1] == release.version, nil
 }
 
 func bumpsUpFormula(content string, release *LatestRelease) (string, error) {

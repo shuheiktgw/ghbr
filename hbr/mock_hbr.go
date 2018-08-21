@@ -55,13 +55,13 @@ func (mr *MockHBRWrapperMockRecorder) CreateFormula(app, font, private, release 
 }
 
 // UpdateFormula mocks base method
-func (m *MockHBRWrapper) UpdateFormula(app, branch string, merge bool, release *LatestRelease) {
-	m.ctrl.Call(m, "UpdateFormula", app, branch, merge, release)
+func (m *MockHBRWrapper) UpdateFormula(app, branch string, force, merge bool, release *LatestRelease) {
+	m.ctrl.Call(m, "UpdateFormula", app, branch, force, merge, release)
 }
 
 // UpdateFormula indicates an expected call of UpdateFormula
-func (mr *MockHBRWrapperMockRecorder) UpdateFormula(app, branch, merge, release interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFormula", reflect.TypeOf((*MockHBRWrapper)(nil).UpdateFormula), app, branch, merge, release)
+func (mr *MockHBRWrapperMockRecorder) UpdateFormula(app, branch, force, merge, release interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFormula", reflect.TypeOf((*MockHBRWrapper)(nil).UpdateFormula), app, branch, force, merge, release)
 }
 
 // Err mocks base method
@@ -125,13 +125,13 @@ func (mr *MockHBRClientMockRecorder) CreateFormula(app, font, private, release i
 }
 
 // UpdateFormula mocks base method
-func (m *MockHBRClient) UpdateFormula(app, branch string, merge bool, release *LatestRelease) error {
-	ret := m.ctrl.Call(m, "UpdateFormula", app, branch, merge, release)
+func (m *MockHBRClient) UpdateFormula(app, branch string, force, merge bool, release *LatestRelease) error {
+	ret := m.ctrl.Call(m, "UpdateFormula", app, branch, force, merge, release)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateFormula indicates an expected call of UpdateFormula
-func (mr *MockHBRClientMockRecorder) UpdateFormula(app, branch, merge, release interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFormula", reflect.TypeOf((*MockHBRClient)(nil).UpdateFormula), app, branch, merge, release)
+func (mr *MockHBRClientMockRecorder) UpdateFormula(app, branch, force, merge, release interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFormula", reflect.TypeOf((*MockHBRClient)(nil).UpdateFormula), app, branch, force, merge, release)
 }

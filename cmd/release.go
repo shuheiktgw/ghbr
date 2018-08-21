@@ -7,7 +7,7 @@ import (
 
 type releaseOptions struct {
 	token, owner, repo, branch string
-	merge                      bool
+	force, merge               bool
 }
 
 var releaseOpts releaseOptions
@@ -45,7 +45,7 @@ func setReleasePreRunE(cmd *cobra.Command) {
 func runRelease(generator hbr.Generator) error {
 	g := generator(releaseOpts.token, releaseOpts.owner)
 	lr := g.GetCurrentRelease(releaseOpts.repo)
-	g.UpdateFormula(releaseOpts.repo, releaseOpts.branch, releaseOpts.merge, lr)
+	g.UpdateFormula(releaseOpts.repo, releaseOpts.branch, releaseOpts.force, releaseOpts.merge, lr)
 
 	if err := g.Err(); err != nil {
 		return err
@@ -66,6 +66,9 @@ func setReleaseFlags(cmd *cobra.Command) {
 
 	// Set branch flag
 	cmd.Flags().StringVarP(&releaseOpts.branch, "branch", "b", "master", "GitHub branch")
+
+	// Set force flag
+	cmd.Flags().BoolVarP(&releaseOpts.merge, "force", "f", false, "Forcefully update a formula file, even if it's up-to-date")
 
 	// Set merge flag
 	cmd.Flags().BoolVarP(&releaseOpts.merge, "merge", "m", false, "Merge a Pull Request or not")
