@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"net/http"
+	"time"
 
 	goGithub "github.com/google/go-github/github"
 	"github.com/pkg/errors"
@@ -184,6 +185,9 @@ func (g *GitHubClient) MergePullRequest(repo string, number int) error {
 	if number == 0 {
 		return errors.New("missing Github Pull Request number")
 	}
+
+	// Wait a few seconds to prevent GitHub API returns `405 Base branch was modified`
+	time.Sleep(3 * time.Second)
 
 	_, res, err := g.Client.PullRequests.Merge(context.TODO(), g.Owner, repo, number, "", nil)
 
