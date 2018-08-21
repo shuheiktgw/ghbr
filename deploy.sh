@@ -8,3 +8,4 @@ FILES=./pkg/dist/v${VERSION}
 
 goxz -pv=v${VERSION} -arch=386,amd64 -d=${FILES}
 ghr -t ${GHR_GITHUB_TOKEN} --replace v${VERSION} ${FILES}
+ghbr release -t ${GHR_GITHUB_TOKEN}

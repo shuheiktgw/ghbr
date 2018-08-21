@@ -10,6 +10,7 @@ os:
 before_deploy:
   - go get github.com/Songmu/goxz/cmd/goxz
   - go get github.com/tcnksm/ghr
+  - go get github.com/shuheiktgw/ghbr
   # See https://github.com/spf13/cobra/issues/250
   - go get github.com/inconshreveable/mousetrap
 deploy:
