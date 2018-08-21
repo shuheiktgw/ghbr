@@ -7,4 +7,4 @@ VERSION=`grep 'Version =' version/version.go | sed -E 's/.*"(.+)"$$/\1/'`
 FILES=./pkg/dist/v${VERSION}
 
 goxz -pv=v${VERSION} -arch=386,amd64 -d=${FILES}
-ghr -t ${GHR_GITHUB_TOKEN} v${VERSION} ${FILES}
+ghr -t ${GHR_GITHUB_TOKEN} --replace v${VERSION} ${FILES}
