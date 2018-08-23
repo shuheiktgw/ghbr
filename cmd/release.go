@@ -68,7 +68,7 @@ func setReleaseFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&releaseOpts.branch, "branch", "b", "master", "GitHub branch")
 
 	// Set force flag
-	cmd.Flags().BoolVarP(&releaseOpts.merge, "force", "f", false, "Forcefully update a formula file, even if it's up-to-date")
+	cmd.Flags().BoolVarP(&releaseOpts.force, "force", "f", false, "Forcefully update a formula file, even if it's up-to-date")
 
 	// Set merge flag
 	cmd.Flags().BoolVarP(&releaseOpts.merge, "merge", "m", false, "Merge a Pull Request or not")
