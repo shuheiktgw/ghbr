@@ -8,7 +8,13 @@ ghbr
 
 ## Demo
 
-TODO
+### `ghbr create`
+
+![create-demo](doc/ghbr-create-demo.gif)
+
+### `ghbr releasse`
+
+![release-demo](doc/ghbr-release-demo.gif)
 
 ## Usage
 In order to use `ghbr`, you need a GitHub personal access token (See [GitHub personal access token section](#github-personal-access-token) for more information).
@@ -19,7 +25,7 @@ In order to use `ghbr`, you need a GitHub personal access token (See [GitHub per
 
 `ghbr create` creates a GitHub repository to host your Homebrew formula.
 
-```
+```bash
 $ cd [Root of Your Application]
 $ ghbr create [Options]
 ```
@@ -55,7 +61,7 @@ For more information, see [How to install Homebrew formula created by ghbr](#how
 
 `ghbr release` updates a formula file based on the latest release of your application.
 
-```
+```bash
 $ cd [Root of Your Application]
 $ ghbr release [Options]
 ``` 
@@ -91,7 +97,7 @@ Please be aware that, if you do not specify `--merge` option, you need to manual
 
 Returns the current version of `ghbr`, it gives you a warning if your current version is not up-to-date.
 
-```
+```bash
 $ ghbr version
 ```
 
@@ -107,12 +113,12 @@ Currently, there are three ways to specify your GitHub personal access token.
 
 1. `-t` or `-token` option
 
-```
+```bash
 $ ghbr [Sub Command] -t="Your GitHub personal access token" [Other Options]
 ```
 
 2. Environment variable
-```
+```bash
 $ export GITHUB_TOKEN="Your GitHub personal access token"
 ```
 
@@ -141,11 +147,18 @@ Alternatively, if you are Golang programmer, you can use `go get`.
 
 ## How to install Homebrew formula created by ghbr
 
-TODO
+All you need to do to install your Homebrew formula is run the following command.
+
+```bash
+$ brew tap [GitHub Owner Name]/[Your Application Name]
+$ brew install [Your Application Name]
+```
 
 ## ghbr and CI Example
 
-TODO
+`ghbr` itself uses `ghbr` to update a formula file hosted in [shuheiktgw/homebrew-ghbr](https://github.com/shuheiktgw/homebrew-ghbr) with [Travis CI](https://travis-ci.org/). If you want to grasp an idea on how to use `ghbr` with CI, check out [.travis.yml](https://github.com/shuheiktgw/ghbr/blob/master/.travis.yml) and [deploy.sh](https://github.com/shuheiktgw/ghbr/blob/master/deploy.sh).
+
+Also, if you are Golang programmer and automation freak like me, `ghbr` works very well with [goxz](https://github.com/Songmu/goxz) and [ghr](https://github.com/tcnksm/ghr) to automate your build. So please check the two files above to know how to use `ghbr` with them. 
 
 ## Author
 
