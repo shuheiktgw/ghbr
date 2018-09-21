@@ -12,6 +12,7 @@ import (
 
 	"github.com/common-nighthawk/go-figure"
 	goGithub "github.com/google/go-github/github"
+	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
 	"github.com/shuheiktgw/ghbr/github"
 )
@@ -369,7 +370,7 @@ EOF
   end
 end
 
-`, strings.Title(app), originalRepo, release.version, release.url, release.hash, app, caveats.String())
+`, strcase.ToCamel(app), originalRepo, release.version, release.url, release.hash, app, caveats.String())
 
 	_, err := g.GitHub.CreateFile(
 		repo,
