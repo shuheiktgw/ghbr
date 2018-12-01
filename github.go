@@ -102,9 +102,9 @@ func (g *GitHubClient) MergePullRequest(owner, repo string, number int) error {
 
 // ClosePullRequest closes Pull Request with a give Pull Request number
 func (g *GitHubClient) ClosePullRequest(owner, repo string, number int) error {
-	opt := &github.PullRequest{State: github.String("close")}
+	pr := &github.PullRequest{State: github.String("close")}
 
-	_, _, err := g.Client.PullRequests.Edit(context.TODO(), owner, repo, number, opt)
+	_, _, err := g.Client.PullRequests.Edit(context.TODO(), owner, repo, number, pr)
 
 	if err != nil {
 		return errors.Wrapf(err, "#PullRequests.Edit failed to close Pull Request: owner: %s, repo: %s, number: %d", owner, repo, number)
