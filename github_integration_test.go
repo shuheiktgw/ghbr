@@ -24,7 +24,7 @@ func TestGetLatestReleaseFail(t *testing.T) {
 	c := testGitHubClient()
 
 	if _, err := c.GetLatestRelease(IntegrationTestOwner, "unknown"); err == nil {
-		t.Fatalf("#GetCurrentRelease did not return error")
+		t.Fatalf("#GetLatestRelease did not return error")
 	}
 }
 
@@ -32,7 +32,7 @@ func TestGetLatestReleaseSuccess(t *testing.T) {
 	c := testGitHubClient()
 
 	if _, err := c.GetLatestRelease(IntegrationTestOwner, IntegrationTestRepo); err != nil {
-		t.Fatalf("GetCurrentRelease: unexpected error occured: %s", err)
+		t.Fatalf("GetLatestRelease: unexpected error occured: %s", err)
 	}
 }
 
