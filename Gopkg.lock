@@ -38,6 +38,12 @@
   revision = "270f2f71b1ee587f3b609f00f422b76a6b28f348"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/iancoleman/strcase"
+  packages = ["."]
+  revision = "3605ed457bf7f8caa1371b4fafadadc026673479"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
@@ -110,6 +116,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2712f0e3f54ea2f86beed90d983c3f55298c2fd80064a2305e59779d9842431d"
+  inputs-digest = "8c45762dfac12ff18dd747f92ccf4f2124ab69ddb97c94f981caee652acc7e2a"
   solver-name = "gps-cdcl"
   solver-version = 1
