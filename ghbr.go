@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -14,10 +15,6 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
-)
-
-const (
-	CreateBranch = "master"
 )
 
 var versionRegex = regexp.MustCompile(`version\s['"]([\w.-]+)['"]`)
@@ -31,6 +28,13 @@ type HandledError struct {
 
 func (e *HandledError) Error() string {
 	return e.Message
+}
+
+type GhbrGenerator func(token string) *Ghbr
+
+// GenerateGhbr defines a method to create ghbr
+func GenerateGhbr(token string) *Ghbr {
+	return &Ghbr{GitHub: NewGitHubClient(token), outStream: os.Stdout}
 }
 
 // Ghbr defines functions for Homebrew Formula
@@ -301,7 +305,7 @@ end
 	_, err := g.GitHub.CreateFile(
 		owner,
 		repo,
-		CreateBranch,
+		"master",
 		fmt.Sprintf("%s.rb", app),
 		"Create formula",
 		[]byte(content),
