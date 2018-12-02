@@ -240,19 +240,18 @@ func TestGitHubClient_CreateRepository(t *testing.T) {
 	client, mux, _, tearDown := setup()
 	defer tearDown()
 
-	org := "shuheiktgw"
 	name := "testRepo"
 	description := "This is a test"
 	homepage := "https://shuheiktgw.com"
 	private := false
 
-	mux.HandleFunc(fmt.Sprintf("/orgs/%v/repos", org), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/orgs/%v/repos", TestOwner), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		testBody(t, r, fmt.Sprintf(`{"name":"%s","description":"%s","homepage":"%s","private":%v}`+"\n", name, description, homepage, private))
 		fmt.Fprintf(w, `{"name":"%s","description":"%s","homepage":"%s"}`, name, description, homepage)
 	})
 
-	repo, err := client.CreateRepository(org, name, description, homepage, private)
+	repo, err := client.CreateRepository(TestOwner, name, description, homepage, private)
 	if err != nil {
 		t.Fatalf("#CreateRepository returns unexpected error: %v", err)
 	}
