@@ -1,9 +1,8 @@
-package cmd
+package main
 
 import (
 	"os"
 
-	"github.com/shuheiktgw/ghbr/hbr"
 	"github.com/spf13/cobra"
 )
 
@@ -33,8 +32,8 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(NewVersionCmd())
-	RootCmd.AddCommand(NewReleaseCmd(hbr.GenerateHBR))
-	RootCmd.AddCommand(NewCreateCmd(hbr.GenerateHBR))
+	RootCmd.AddCommand(NewReleaseCmd(GenerateGhbr))
+	RootCmd.AddCommand(NewCreateCmd(GenerateGhbr))
 }
 
 func Execute() int {

@@ -1,18 +1,17 @@
-package cmd
+package main
 
 import (
-	"github.com/shuheiktgw/ghbr/hbr"
 	"github.com/spf13/cobra"
 )
 
 type releaseOptions struct {
-	token, owner, repo, branch string
-	force, merge               bool
+	token, org, owner, repo, branch string
+	force, merge                    bool
 }
 
 var releaseOpts releaseOptions
 
-func NewReleaseCmd(generator hbr.Generator) *cobra.Command {
+func NewReleaseCmd(generator GhbrGenerator) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "release",
 		Aliases: []string{"update", "bumpup"},
@@ -42,21 +41,23 @@ func setReleasePreRunE(cmd *cobra.Command) {
 	}
 }
 
-func runRelease(generator hbr.Generator) error {
-	g := generator(releaseOpts.token, releaseOpts.owner)
-	lr := g.GetCurrentRelease(releaseOpts.repo)
-	g.UpdateFormula(releaseOpts.repo, releaseOpts.branch, releaseOpts.force, releaseOpts.merge, lr)
+func runRelease(generator GhbrGenerator) error {
+	g := generator(releaseOpts.token)
 
-	if err := g.Err(); err != nil {
+	lr, err := g.GetLatestRelease(releaseOpts.owner, releaseOpts.repo)
+	if err != nil {
 		return err
 	}
 
-	return nil
+	return g.UpdateFormula(releaseOpts.org, releaseOpts.owner, releaseOpts.repo, releaseOpts.branch, releaseOpts.force, releaseOpts.merge, lr)
 }
 
 func setReleaseFlags(cmd *cobra.Command) {
 	// Set token flag
 	setTokenFlag(cmd, &releaseOpts.token)
+
+	// Set org flag
+	cmd.Flags().StringVarP(&createOpts.org, "org", "g", "", "GitHub organization hosting a formula on")
 
 	// Set owner flag
 	setOwnerFlag(cmd, &releaseOpts.owner)

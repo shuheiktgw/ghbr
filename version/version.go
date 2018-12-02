@@ -17,7 +17,7 @@ const Owner = "shuheiktgw"
 // Name is the name of this application
 const Name = "ghbr"
 
-// OutputVersion outputs current version of ghbr. It also checks
+// OutputVersion outputs current version wof ghbr. It also checks
 // the latest release and adds a warning to update ghbr
 func OutputVersion() string {
 	var b bytes.Buffer
@@ -45,7 +45,7 @@ func OutputVersion() string {
 	case <-time.After(2 * time.Second):
 	case res := <-verCheckCh:
 		if res.Outdated {
-			fmt.Fprintf(&b, "The Latest version is v%s, please update GHBR\n", res.Current)
+			fmt.Fprintf(&b, "The Latest version is v%s, please update ghbr\n", res.Current)
 		}
 	}
 

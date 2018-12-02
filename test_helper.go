@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -65,4 +66,13 @@ func testBody(t *testing.T, r *http.Request, want string) {
 	if got := string(b); got != want {
 		t.Errorf("request Body is %s, want %s", got, want)
 	}
+}
+
+func ghbrMockGenerator() (GhbrGenerator, *GitHubClient, *bytes.Buffer, *http.ServeMux, func()) {
+	outStream := new(bytes.Buffer)
+	client, mux, _, teardown := setup()
+
+	return func(token string) *Ghbr {
+		return &Ghbr{GitHub: client, outStream: outStream}
+	}, client, outStream, mux, teardown
 }

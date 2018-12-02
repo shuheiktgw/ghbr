@@ -1,18 +1,17 @@
-package cmd
+package main
 
 import (
-	"github.com/shuheiktgw/ghbr/hbr"
 	"github.com/spf13/cobra"
 )
 
 type createOptions struct {
-	token, owner, repo, font string
-	private                  bool
+	token, org, owner, repo, font string
+	private                       bool
 }
 
 var createOpts createOptions
 
-func NewCreateCmd(generator hbr.Generator) *cobra.Command {
+func NewCreateCmd(generator GhbrGenerator) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create",
 		Aliases: []string{"init"},
@@ -42,21 +41,23 @@ func setCreatePreRunE(cmd *cobra.Command) {
 	}
 }
 
-func runCreate(generator hbr.Generator) error {
-	g := generator(createOpts.token, createOpts.owner)
-	lr := g.GetCurrentRelease(createOpts.repo)
-	g.CreateFormula(createOpts.repo, createOpts.font, createOpts.private, lr)
+func runCreate(generator GhbrGenerator) error {
+	g := generator(createOpts.token)
 
-	if err := g.Err(); err != nil {
+	lr, err := g.GetLatestRelease(createOpts.owner, createOpts.repo)
+	if err != nil {
 		return err
 	}
 
-	return nil
+	return g.CreateFormula(createOpts.org, createOpts.owner, createOpts.repo, createOpts.font, createOpts.private, lr)
 }
 
 func setCreateFlags(cmd *cobra.Command) {
 	// Set token flag
 	setTokenFlag(cmd, &createOpts.token)
+
+	// Set org flag
+	cmd.Flags().StringVarP(&createOpts.org, "org", "g", "", "GitHub organization you want to host a formula on")
 
 	// Set owner flag
 	setOwnerFlag(cmd, &createOpts.owner)

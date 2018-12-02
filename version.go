@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"github.com/shuheiktgw/ghbr/version"
@@ -8,7 +8,7 @@ import (
 func NewVersionCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",
-		Short: "Print the current version of GHBR",
+		Short: "Print the current version of ghbr",
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Print(version.OutputVersion())
 		},
